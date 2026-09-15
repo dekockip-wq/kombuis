@@ -688,16 +688,26 @@ function daeGelede(iso){if(!iso)return null;
 function klantVan(kid){return S.klante.filter(function(k){return k.id===kid;})[0];}
 
 /* periode-staat: alles ná laasteStaat */
-function staatData(k){
-  var af=k.laasteStaat;
+function huidigeMaand(){ return vandagISO().slice(0,7); }
+/* maand-staat: saldo aan die begin van die maand + alles in daardie maand */
+function staatData(k, maand){
+  maand = maand || huidigeMaand();
   var voor=k.open||0, rye=[];
   gesorteer(k).forEach(function(e){
-    if(af && e.datum<=af){ voor+=tekenVan(e); } else { rye.push(e); }
+    var m=e.datum.slice(0,7);
+    if(m<maand){ voor+=tekenVan(e); } else if(m===maand){ rye.push(e); }
   });
   var aankope=0,betalings=0;
   rye.forEach(function(e){ if(e.tipe==='betaling') betalings+=e.bedrag; else aankope+=e.bedrag; });
-  return {vanaf:af, voor:voor, rye:rye, aankope:aankope, betalings:betalings,
+  return {maand:maand, voor:voor, rye:rye, aankope:aankope, betalings:betalings,
           eind:voor+aankope-betalings, tot:vandagISO()};
+}
+function maandNaam(m){ return MAANDVOL[+m.slice(5,7)-1]+' '+m.slice(0,4); }
+/* alle maande waarvoor daar iets is, plus die huidige, nuutste eerste */
+function maandeVan(k){
+  var st={}; st[huidigeMaand()]=1;
+  k.inskrywings.forEach(function(e){ st[e.datum.slice(0,7)]=1; });
+  return Object.keys(st).sort().reverse();
 }
 
 /* ============ UI-hulp ============ */
@@ -849,12 +859,9 @@ function skermInstellings(){
 var GROEN=[62,92,72], ROOM=[247,244,237], GRYS=[138,131,120], LYN=[222,216,204],
     INK=[51,48,43], BETGROEN=[47,107,69], LIG=[166,156,140];
 
-function periodeTeks(dt){
-  if(!dt.vanaf) return 'Tot ' + dVol(dt.tot);
-  return dKort(dt.vanaf) + ' tot ' + dVol(dt.tot);
-}
-function maakPdf(k){
-  var dt=staatData(k), b=S.besigheid;
+function periodeTeks(dt){ return maandNaam(dt.maand); }
+function maakPdf(k, maand){
+  var dt=staatData(k, maand), b=S.besigheid;
   var doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
   var L=17, R=193, y;
 
@@ -930,7 +937,7 @@ function maakPdf(k){
   if(!n){
     doc.setFont('helvetica','italic'); doc.setFontSize(9.5);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
-    doc.text('Geen nuwe items sedert die vorige staat nie.', L, y+6);
+    doc.text('Nog niks hierdie maand aangeteken nie.', L, y+6);
     y+=10;
   }
 
@@ -968,9 +975,11 @@ function maakPdf(k){
   if(b.eienaar) doc.text(b.eienaar, R, 281.5, {align:'right'});
   return doc;
 }
-function pdfNaam(k){
+function pdfNaam(k, maand){
+  maand=maand||huidigeMaand();
   var d=vandagISO().split('-');
-  return 'Staat_'+k.naam.replace(/[^A-Za-z0-9]/g,'')+'_'+d[2]+MAANDE[+d[1]-1]+d[0]+'.pdf';
+  return 'Staat_'+k.naam.replace(/[^A-Za-z0-9]/g,'')+'_'+MAANDVOL[+maand.slice(5,7)-1]+maand.slice(0,4)
+    +'_'+d[2]+MAANDE[+d[1]-1]+'.pdf';
 }
 
 /* ---- stuur / stoor sonder Claude ---- */
@@ -1000,22 +1009,22 @@ function stuurLeer(blob,naam,titel){
   try{ afLaai(blob,naam); return Promise.resolve('afgelaai'); }
   catch(e){ return Promise.resolve('fout'); }
 }
-function stuurStaat(k){
+function stuurStaat(k, maand){
   var blob;
-  try{ blob=maakPdf(k).output('blob'); }catch(e){ return Promise.resolve('fout'); }
-  return stuurLeer(blob, pdfNaam(k), 'Staat vir '+k.naam);
+  try{ blob=maakPdf(k, maand).output('blob'); }catch(e){ return Promise.resolve('fout'); }
+  return stuurLeer(blob, pdfNaam(k, maand), 'Staat vir '+k.naam);
 }
 
 /* ============ staat-voorskou ============ */
-function staatHtml(k){
-  var dt=staatData(k), b=S.besigheid;
+function staatHtml(k, maand){
+  var dt=staatData(k, maand), b=S.besigheid;
   var rye='<tr class="sal"><td>Saldo oorgedra</td><td></td><td class="rg">'+G(dt.voor)+'</td></tr>';
   dt.rye.forEach(function(e){
     var bet=e.tipe==='betaling';
     rye+='<tr'+(bet?' class="btl"':'')+'><td>'+h(e.beskr)+'</td><td>'+h(dKort(e.datum))
       +'</td><td class="rg">'+(bet?'&minus; ':'')+G(e.bedrag)+'</td></tr>';
   });
-  if(!dt.rye.length) rye+='<tr><td colspan="3" style="color:#8A8378;font-style:italic;padding:8px 0">Geen nuwe items sedert die vorige staat nie.</td></tr>';
+  if(!dt.rye.length) rye+='<tr><td colspan="3" style="color:#8A8378;font-style:italic;padding:8px 0">Nog niks hierdie maand aangeteken nie.</td></tr>';
   var krediet=dt.eind<0;
   return '<div class="staat" id="staat-voorskou">'
     + '<div class="sk"><div><h4>'+h(b.naam)+'</h4><div class="sl">'+h(b.slag)+'</div></div>'
@@ -1034,13 +1043,19 @@ function staatHtml(k){
     + '<span class="kl">'+h(b.naam)+'<br>'+h(b.eienaar)+'</span></div></div>';
 }
 
-function bladStaat(k){
+function bladStaat(k, maand){
+  maand = maand || huidigeMaand();
+  var opsies=maandeVan(k).map(function(m){
+    return '<option value="'+m+'"'+(m===maand?' selected':'')+'>'+h(maandNaam(m))+'</option>';
+  }).join('');
   bladOop('<h3>Staat vir '+h(k.naam)+'</h3>'
-    + '<p class="hint">Dit wys alles sedert die vorige staat. Stoor dit as PDF en stuur dit vir hom &mdash; of neem net &rsquo;n skermkiekie van hierdie blokkie.</p>'
-    + staatHtml(k)
+    + '<div class="veld"><label for="st-maand">Maand</label><select id="st-maand">'+opsies+'</select></div>'
+    + '<p class="hint">Die staat wys die hele maand se items, elke keer &mdash; hoeveel keer jy dit ook al stuur. Tik <strong>Stuur staat</strong>, dan kies jy WhatsApp uit die deel-skerm.</p>'
+    + staatHtml(k, maand)
     + '<div class="knoppe" style="margin-top:16px"><button class="knop sag" data-toe>Toemaak</button>'
-    + '<button class="knop" data-stoorpdf="'+k.id+'">Stuur staat</button></div>'
+    + '<button class="knop" data-stoorpdf="'+k.id+'" data-maand="'+maand+'">Stuur staat</button></div>'
     + '<p style="text-align:center;margin:14px 0 0"><button class="skakel" data-gemerk="'+k.id+'">Merk as gestuur sonder PDF</button></p>');
+  var sel=$('#st-maand'); if(sel) sel.onchange=function(){ bladStaat(k, sel.value); };
 }
 
 /* ============ state vir almal ============ */
@@ -1256,9 +1271,9 @@ $('#blad').addEventListener('click', function(ev){
     stoor(); bladToe(); teken(); toon('Item verwyder', voor4); return;
   }
   if(a('data-stoorpdf')){
-    var kp=klantVan(a('data-stoorpdf'));
+    var kp=klantVan(a('data-stoorpdf')), mp=a('data-maand')||huidigeMaand();
     el.disabled=true; el.textContent='Besig…';
-    stuurStaat(kp).then(function(r){
+    stuurStaat(kp, mp).then(function(r){
       el.disabled=false; el.textContent='Stuur staat';
       if(r==='gedeel'||r==='afgelaai'){
         var voor5=kiekie(); kp.laasteStaat=vandagISO(); stoor(); bladToe(); teken();
