@@ -840,6 +840,8 @@ function skermInstellings(){
     + '<div class="afdeling"><span class="eyebrow">Besigheid</span></div>'
     + '<div class="veld"><label for="i-naam">Naam</label><input id="i-naam" value="'+h(b.naam)+'"></div>'
     + '<div class="veld"><label for="i-slag">Onderskrif</label><input id="i-slag" value="'+h(b.slag)+'"></div>'
+    + '<div class="veld"><label for="i-naamen">Naam op Engelse state</label><input id="i-naamen" value="'+h(b.naamEn||NAAM_EN_STD)+'"></div>'
+    + '<div class="veld"><label for="i-slagen">Onderskrif op Engelse state</label><input id="i-slagen" value="'+h(b.slagEn||SLAG_EN_STD)+'"></div>'
     + '<div class="veld"><label for="i-eien">Jou naam (onderaan die staat)</label><input id="i-eien" value="'+h(b.eienaar)+'"></div>'
     + '<div class="veld"><label for="i-geld">Geldteken</label><input id="i-geld" value="'+h(b.geld)+'" style="max-width:100px"></div>'
     + '<button class="knop sag" data-stoorbesigheid>Stoor</button>'
@@ -875,7 +877,9 @@ var ITEM_EN={'ete':'Meal','betaling':'Payment','droëwors':'Droëwors','biltong'
 function taalVan(k){ return (k && k.taal==='en') ? 'en' : 'af'; }
 function T(k){ return TAAL[taalVan(k)]; }
 function itemNaam(beskr, tl){ if(tl!=='en') return beskr; var e=ITEM_EN[String(beskr).toLowerCase()]; return e||beskr; }
-function slagVan(tl){ var sl=S.besigheid.slag||''; if(tl==='en' && sl==='Tuisgemaakte etes & biltong') return 'Homemade meals & biltong'; return sl; }
+var NAAM_EN_STD="Crisna's Hot Kitchen", SLAG_EN_STD='Homemade meals & biltong for hungry men';
+function naamVan(tl){ var b=S.besigheid; if(tl==='en') return b.naamEn||NAAM_EN_STD; return b.naam; }
+function slagVan(tl){ var b=S.besigheid; if(tl==='en') return b.slagEn||SLAG_EN_STD; return b.slag||''; }
 function dKortT(iso,tl){ if(tl!=='en') return dKort(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]; }
 function dVolT(iso,tl){ if(tl!=='en') return dVol(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]+' '+p[0]; }
 function maandNaamT(m,tl){ if(tl!=='en') return maandNaam(m); return MONTHS_EN[+m.slice(5,7)-1]+' '+m.slice(0,4); }
@@ -888,7 +892,7 @@ function maakPdf(k, maand){
   function kop(eerste){
     doc.setTextColor(GROEN[0],GROEN[1],GROEN[2]);
     doc.setFont('times','bold'); doc.setFontSize(22);
-    doc.text(b.naam, L, 24);
+    doc.text(naamVan(tl), L, 24);
     doc.setFont('helvetica','normal'); doc.setFontSize(9);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
     doc.text(slagVan(tl), L, 29.5);
@@ -991,7 +995,7 @@ function maakPdf(k, maand){
   doc.text(W.dankie, L, 280);
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
   doc.setTextColor(LIG[0],LIG[1],LIG[2]);
-  doc.text(b.naam, R, 277, {align:'right'});
+  doc.text(naamVan(tl), R, 277, {align:'right'});
   if(b.eienaar) doc.text(b.eienaar, R, 281.5, {align:'right'});
   return doc;
 }
@@ -1047,7 +1051,7 @@ function staatHtml(k, maand){
   if(!dt.rye.length) rye+='<tr><td colspan="3" style="color:#8A8378;font-style:italic;padding:8px 0">'+W.leeg+'</td></tr>';
   var krediet=dt.eind<0;
   return '<div class="staat" id="staat-voorskou">'
-    + '<div class="sk"><div><h4>'+h(b.naam)+'</h4><div class="sl">'+h(slagVan(tl))+'</div></div>'
+    + '<div class="sk"><div><h4>'+h(naamVan(tl))+'</h4><div class="sl">'+h(slagVan(tl))+'</div></div>'
     + '<div class="r"><div class="e">'+W.staat+'</div><div class="m">'+h(periodeTeks(dt,tl))+'</div></div></div>'
     + '<div class="aan"><div class="e">'+W.rekVan+'</div><div class="n">'+h(k.naam)+'</div></div>'
     + '<table><thead><tr><th>'+W.beskr+'</th><th>'+W.datum+'</th><th class="rg">'+W.bedrag+'</th></tr></thead>'
@@ -1060,7 +1064,7 @@ function staatHtml(k, maand){
     + (krediet?W.krediet:W.uit)+'</span><span class="t2">'+G(Math.abs(dt.eind))+'</span></div>'
     + '</div>'
     + '<div class="vt"><span class="dk">'+W.dankie+'</span>'
-    + '<span class="kl">'+h(b.naam)+'<br>'+h(b.eienaar)+'</span></div></div>';
+    + '<span class="kl">'+h(naamVan(tl))+'<br>'+h(b.eienaar)+'</span></div></div>';
 }
 
 function bladStaat(k, maand){
@@ -1226,6 +1230,8 @@ function bindAksies(){
       var voor=kiekie();
       S.besigheid.naam=$('#i-naam').value.trim()||S.besigheid.naam;
       S.besigheid.slag=$('#i-slag').value.trim();
+      S.besigheid.naamEn=$('#i-naamen').value.trim()||NAAM_EN_STD;
+      S.besigheid.slagEn=$('#i-slagen').value.trim()||SLAG_EN_STD;
       S.besigheid.eienaar=$('#i-eien').value.trim();
       S.besigheid.geld=$('#i-geld').value.trim()||'$';
       stoor(); teken(); toon('Gestoor', voor);
