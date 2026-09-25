@@ -877,7 +877,7 @@ var ITEM_EN={'ete':'Meal','betaling':'Payment','droëwors':'Droëwors','biltong'
 function taalVan(k){ return (k && k.taal==='en') ? 'en' : 'af'; }
 function T(k){ return TAAL[taalVan(k)]; }
 function itemNaam(beskr, tl){ if(tl!=='en') return beskr; var e=ITEM_EN[String(beskr).toLowerCase()]; return e||beskr; }
-var NAAM_EN_STD="Crisna's Hot Kitchen", SLAG_EN_STD='Homemade meals & biltong for hungry men';
+var NAAM_EN_STD="Crisna's Hot Kitchen", SLAG_EN_STD='Homemade meals & biltong';
 function naamVan(tl){ var b=S.besigheid; if(tl==='en') return b.naamEn||NAAM_EN_STD; return b.naam; }
 function slagVan(tl){ var b=S.besigheid; if(tl==='en') return b.slagEn||SLAG_EN_STD; return b.slag||''; }
 function dKortT(iso,tl){ if(tl!=='en') return dKort(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]; }
