@@ -859,9 +859,29 @@ function skermInstellings(){
 var GROEN=[62,92,72], ROOM=[247,244,237], GRYS=[138,131,120], LYN=[222,216,204],
     INK=[51,48,43], BETGROEN=[47,107,69], LIG=[166,156,140];
 
-function periodeTeks(dt){ return maandNaam(dt.maand); }
+var MONTHS_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var MON_EN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var TAAL={
+  af:{staat:'Staat', stSp:'S T A A T', opgestel:'Opgestel', rekVan:'Rekening van', rekSp:'R E K E N I N G   V A N',
+      beskr:'Beskrywing', datum:'Datum', bedrag:'Bedrag', saldo:'Saldo oorgedra', aankope:'Nuwe aankope',
+      bet:'Betalings ontvang', betKort:'Betalings', uit:'Uitstaande', krediet:'In krediet',
+      leeg:'Nog niks hierdie maand aangeteken nie.', dankie:'Baie dankie vir jou ondersteuning!', leer:'Staat'},
+  en:{staat:'Statement', stSp:'S T A T E M E N T', opgestel:'Issued', rekVan:'Account of', rekSp:'A C C O U N T   O F',
+      beskr:'Description', datum:'Date', bedrag:'Amount', saldo:'Balance brought forward', aankope:'New purchases',
+      bet:'Payments received', betKort:'Payments', uit:'Amount due', krediet:'In credit',
+      leeg:'Nothing recorded this month yet.', dankie:'Thank you for your support!', leer:'Statement'}
+};
+var ITEM_EN={'ete':'Meal','betaling':'Payment','droëwors':'Droëwors','biltong':'Biltong','haarsny':'Haircut','koeksisters':'Koeksisters'};
+function taalVan(k){ return (k && k.taal==='en') ? 'en' : 'af'; }
+function T(k){ return TAAL[taalVan(k)]; }
+function itemNaam(beskr, tl){ if(tl!=='en') return beskr; var e=ITEM_EN[String(beskr).toLowerCase()]; return e||beskr; }
+function slagVan(tl){ var sl=S.besigheid.slag||''; if(tl==='en' && sl==='Tuisgemaakte etes & biltong') return 'Homemade meals & biltong'; return sl; }
+function dKortT(iso,tl){ if(tl!=='en') return dKort(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]; }
+function dVolT(iso,tl){ if(tl!=='en') return dVol(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]+' '+p[0]; }
+function maandNaamT(m,tl){ if(tl!=='en') return maandNaam(m); return MONTHS_EN[+m.slice(5,7)-1]+' '+m.slice(0,4); }
+function periodeTeks(dt,tl){ return maandNaamT(dt.maand,tl); }
 function maakPdf(k, maand){
-  var dt=staatData(k, maand), b=S.besigheid;
+  var dt=staatData(k, maand), b=S.besigheid, tl=taalVan(k), W=T(k);
   var doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
   var L=17, R=193, y;
 
@@ -871,20 +891,20 @@ function maakPdf(k, maand){
     doc.text(b.naam, L, 24);
     doc.setFont('helvetica','normal'); doc.setFontSize(9);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
-    doc.text(b.slag, L, 29.5);
+    doc.text(slagVan(tl), L, 29.5);
     doc.setFontSize(8); doc.setTextColor(LIG[0],LIG[1],LIG[2]);
-    doc.text('S T A A T', R, 19.5, {align:'right'});
+    doc.text(W.stSp, R, 19.5, {align:'right'});
     doc.setFont('times','normal'); doc.setFontSize(13);
     doc.setTextColor(GROEN[0],GROEN[1],GROEN[2]);
-    doc.text(periodeTeks(dt), R, 26.5, {align:'right'});
+    doc.text(periodeTeks(dt,tl), R, 26.5, {align:'right'});
     doc.setFont('helvetica','normal'); doc.setFontSize(8);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
-    doc.text('Opgestel ' + dVol(dt.tot), R, 31.5, {align:'right'});
+    doc.text(W.opgestel+' ' + dVolT(dt.tot,tl), R, 31.5, {align:'right'});
     doc.setDrawColor(GROEN[0],GROEN[1],GROEN[2]); doc.setLineWidth(0.7);
     doc.line(L, 36, R, 36);
     if(eerste){
       doc.setFontSize(7.5); doc.setTextColor(LIG[0],LIG[1],LIG[2]);
-      doc.text('R E K E N I N G   V A N', L, 45);
+      doc.text(W.rekSp, L, 45);
       doc.setFont('times','normal'); doc.setFontSize(17);
       doc.setTextColor(INK[0],INK[1],INK[2]);
       doc.text(k.naam, L, 52.5);
@@ -895,9 +915,9 @@ function maakPdf(k, maand){
   function tabelkop(ty){
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
-    doc.text('BESKRYWING', L, ty);
-    doc.text('DATUM', 118, ty);
-    doc.text('BEDRAG', R, ty, {align:'right'});
+    doc.text(W.beskr.toUpperCase(), L, ty);
+    doc.text(W.datum.toUpperCase(), 118, ty);
+    doc.text(W.bedrag.toUpperCase(), R, ty, {align:'right'});
     doc.setDrawColor(LYN[0],LYN[1],LYN[2]); doc.setLineWidth(0.5);
     doc.line(L, ty+2, R, ty+2);
     return ty+2;
@@ -910,7 +930,7 @@ function maakPdf(k, maand){
   doc.rect(L, y+0.6, R-L, 7, 'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
   doc.setTextColor(INK[0],INK[1],INK[2]);
-  doc.text('Saldo oorgedra', L+2, y+5.5);
+  doc.text(W.saldo, L+2, y+5.5);
   doc.text(G(dt.voor), R-2, y+5.5, {align:'right'});
   y+=9.5;
 
@@ -923,9 +943,9 @@ function maakPdf(k, maand){
     doc.setFont('helvetica', bet?'bold':'normal'); doc.setFontSize(10);
     if(bet) doc.setTextColor(BETGROEN[0],BETGROEN[1],BETGROEN[2]);
     else doc.setTextColor(INK[0],INK[1],INK[2]);
-    doc.text(e.beskr, L, y+rh-1.6);
+    doc.text(itemNaam(e.beskr,tl), L, y+rh-1.6);
     if(!bet){ doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]); doc.setFont('helvetica','normal'); }
-    doc.text(dKort(e.datum), 118, y+rh-1.6);
+    doc.text(dKortT(e.datum,tl), 118, y+rh-1.6);
     if(bet) doc.setTextColor(BETGROEN[0],BETGROEN[1],BETGROEN[2]);
     else doc.setTextColor(INK[0],INK[1],INK[2]);
     doc.setFont('helvetica', bet?'bold':'normal');
@@ -937,7 +957,7 @@ function maakPdf(k, maand){
   if(!n){
     doc.setFont('helvetica','italic'); doc.setFontSize(9.5);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
-    doc.text('Nog niks hierdie maand aangeteken nie.', L, y+6);
+    doc.text(W.leeg, L, y+6);
     y+=10;
   }
 
@@ -949,9 +969,9 @@ function maakPdf(k, maand){
     doc.setTextColor(groen?BETGROEN[0]:INK[0], groen?BETGROEN[1]:INK[1], groen?BETGROEN[2]:INK[2]);
     doc.text(t, sx, sy); doc.text(w, R, sy, {align:'right'}); sy+=5.4;
   }
-  somry('Saldo oorgedra', G(dt.voor));
-  somry('Nuwe aankope', G(dt.aankope));
-  somry('Betalings ontvang', '- '+G(dt.betalings), true);
+  somry(W.saldo, G(dt.voor));
+  somry(W.aankope, G(dt.aankope));
+  somry(W.bet, '- '+G(dt.betalings), true);
   doc.setDrawColor(LYN[0],LYN[1],LYN[2]); doc.setLineWidth(0.5);
   doc.line(sx, sy-3.4, R, sy-3.4);
   var krediet = dt.eind<0;
@@ -959,7 +979,7 @@ function maakPdf(k, maand){
   doc.roundedRect(sx, sy-1, R-sx, 12.5, 1.2, 1.2, 'F');
   doc.setTextColor(255,255,255);
   doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-  doc.text(krediet?'IN KREDIET':'UITSTAANDE', sx+3.5, sy+6.6);
+  doc.text((krediet?W.krediet:W.uit).toUpperCase(), sx+3.5, sy+6.6);
   doc.setFont('times','bold'); doc.setFontSize(16);
   doc.text(G(Math.abs(dt.eind)), R-3.5, sy+7, {align:'right'});
 
@@ -968,7 +988,7 @@ function maakPdf(k, maand){
   doc.line(L, 273, R, 273);
   doc.setFont('times','italic'); doc.setFontSize(11);
   doc.setTextColor(GROEN[0],GROEN[1],GROEN[2]);
-  doc.text('Baie dankie vir jou ondersteuning!', L, 280);
+  doc.text(W.dankie, L, 280);
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
   doc.setTextColor(LIG[0],LIG[1],LIG[2]);
   doc.text(b.naam, R, 277, {align:'right'});
@@ -977,9 +997,9 @@ function maakPdf(k, maand){
 }
 function pdfNaam(k, maand){
   maand=maand||huidigeMaand();
-  var d=vandagISO().split('-');
-  return 'Staat_'+k.naam.replace(/[^A-Za-z0-9]/g,'')+'_'+MAANDVOL[+maand.slice(5,7)-1]+maand.slice(0,4)
-    +'_'+d[2]+MAANDE[+d[1]-1]+'.pdf';
+  var d=vandagISO().split('-'), tl=taalVan(k);
+  var mn=(tl==='en'?MONTHS_EN:MAANDVOL)[+maand.slice(5,7)-1], dm=(tl==='en'?MON_EN:MAANDE)[+d[1]-1];
+  return T(k).leer+'_'+k.naam.replace(/[^A-Za-z0-9]/g,'')+'_'+mn+maand.slice(0,4)+'_'+d[2]+dm+'.pdf';
 }
 
 /* ---- stuur / stoor sonder Claude ---- */
@@ -1012,34 +1032,34 @@ function stuurLeer(blob,naam,titel){
 function stuurStaat(k, maand){
   var blob;
   try{ blob=maakPdf(k, maand).output('blob'); }catch(e){ return Promise.resolve('fout'); }
-  return stuurLeer(blob, pdfNaam(k, maand), 'Staat vir '+k.naam);
+  return stuurLeer(blob, pdfNaam(k, maand), T(k).leer+' - '+k.naam);
 }
 
 /* ============ staat-voorskou ============ */
 function staatHtml(k, maand){
-  var dt=staatData(k, maand), b=S.besigheid;
-  var rye='<tr class="sal"><td>Saldo oorgedra</td><td></td><td class="rg">'+G(dt.voor)+'</td></tr>';
+  var dt=staatData(k, maand), b=S.besigheid, tl=taalVan(k), W=T(k);
+  var rye='<tr class="sal"><td>'+W.saldo+'</td><td></td><td class="rg">'+G(dt.voor)+'</td></tr>';
   dt.rye.forEach(function(e){
     var bet=e.tipe==='betaling';
-    rye+='<tr'+(bet?' class="btl"':'')+'><td>'+h(e.beskr)+'</td><td>'+h(dKort(e.datum))
+    rye+='<tr'+(bet?' class="btl"':'')+'><td>'+h(itemNaam(e.beskr,tl))+'</td><td>'+h(dKortT(e.datum,tl))
       +'</td><td class="rg">'+(bet?'&minus; ':'')+G(e.bedrag)+'</td></tr>';
   });
-  if(!dt.rye.length) rye+='<tr><td colspan="3" style="color:#8A8378;font-style:italic;padding:8px 0">Nog niks hierdie maand aangeteken nie.</td></tr>';
+  if(!dt.rye.length) rye+='<tr><td colspan="3" style="color:#8A8378;font-style:italic;padding:8px 0">'+W.leeg+'</td></tr>';
   var krediet=dt.eind<0;
   return '<div class="staat" id="staat-voorskou">'
-    + '<div class="sk"><div><h4>'+h(b.naam)+'</h4><div class="sl">'+h(b.slag)+'</div></div>'
-    + '<div class="r"><div class="e">Staat</div><div class="m">'+h(periodeTeks(dt))+'</div></div></div>'
-    + '<div class="aan"><div class="e">Rekening van</div><div class="n">'+h(k.naam)+'</div></div>'
-    + '<table><thead><tr><th>Beskrywing</th><th>Datum</th><th class="rg">Bedrag</th></tr></thead>'
+    + '<div class="sk"><div><h4>'+h(b.naam)+'</h4><div class="sl">'+h(slagVan(tl))+'</div></div>'
+    + '<div class="r"><div class="e">'+W.staat+'</div><div class="m">'+h(periodeTeks(dt,tl))+'</div></div></div>'
+    + '<div class="aan"><div class="e">'+W.rekVan+'</div><div class="n">'+h(k.naam)+'</div></div>'
+    + '<table><thead><tr><th>'+W.beskr+'</th><th>'+W.datum+'</th><th class="rg">'+W.bedrag+'</th></tr></thead>'
     + '<tbody>'+rye+'</tbody></table>'
     + '<div class="som">'
-    + '<div class="sr"><span>Saldo oorgedra</span><span>'+G(dt.voor)+'</span></div>'
-    + '<div class="sr"><span>Nuwe aankope</span><span>'+G(dt.aankope)+'</span></div>'
-    + '<div class="sr g"><span>Betalings</span><span>&minus; '+G(dt.betalings)+'</span></div>'
+    + '<div class="sr"><span>'+W.saldo+'</span><span>'+G(dt.voor)+'</span></div>'
+    + '<div class="sr"><span>'+W.aankope+'</span><span>'+G(dt.aankope)+'</span></div>'
+    + '<div class="sr g"><span>'+W.betKort+'</span><span>&minus; '+G(dt.betalings)+'</span></div>'
     + '<div class="tot"'+(krediet?' style="background:#7A6A52"':'')+'><span class="t1">'
-    + (krediet?'In krediet':'Uitstaande')+'</span><span class="t2">'+G(Math.abs(dt.eind))+'</span></div>'
+    + (krediet?W.krediet:W.uit)+'</span><span class="t2">'+G(Math.abs(dt.eind))+'</span></div>'
     + '</div>'
-    + '<div class="vt"><span class="dk">Baie dankie vir jou ondersteuning!</span>'
+    + '<div class="vt"><span class="dk">'+W.dankie+'</span>'
     + '<span class="kl">'+h(b.naam)+'<br>'+h(b.eienaar)+'</span></div></div>';
 }
 
@@ -1050,12 +1070,18 @@ function bladStaat(k, maand){
   }).join('');
   bladOop('<h3>Staat vir '+h(k.naam)+'</h3>'
     + '<div class="veld"><label for="st-maand">Maand</label><select id="st-maand">'+opsies+'</select></div>'
+    + '<div class="veld"><label>Taal van die staat</label><div class="knoppe">'
+    + '<button class="knop'+(taalVan(k)==='af'?'':' sag')+'" data-taal="af" style="min-height:42px">Afrikaans</button>'
+    + '<button class="knop'+(taalVan(k)==='en'?'':' sag')+'" data-taal="en" style="min-height:42px">English</button></div></div>'
     + '<p class="hint">Die staat wys die hele maand se items, elke keer &mdash; hoeveel keer jy dit ook al stuur. Tik <strong>Stuur staat</strong>, dan kies jy WhatsApp uit die deel-skerm.</p>'
     + staatHtml(k, maand)
     + '<div class="knoppe" style="margin-top:16px"><button class="knop sag" data-toe>Toemaak</button>'
     + '<button class="knop" data-stoorpdf="'+k.id+'" data-maand="'+maand+'">Stuur staat</button></div>'
     + '<p style="text-align:center;margin:14px 0 0"><button class="skakel" data-gemerk="'+k.id+'">Merk as gestuur sonder PDF</button></p>');
   var sel=$('#st-maand'); if(sel) sel.onchange=function(){ bladStaat(k, sel.value); };
+  [].forEach.call(document.querySelectorAll('#blad [data-taal]'),function(b){
+    b.onclick=function(ev){ ev.stopPropagation(); k.taal=b.getAttribute('data-taal'); stoor(); bladStaat(k, sel?sel.value:maand); };
+  });
 }
 
 /* ============ state vir almal ============ */
@@ -1064,7 +1090,7 @@ function bladAlmal(){
     var d=daeGelede(k.laasteStaat);
     var sub = d===null?'Nog nooit gestuur':(d===0?'Vandag gestuur':(d===1?'Gister gestuur':d+' dae gelede gestuur'));
     return '<div class="instel-item" id="al-'+k.id+'"><div class="d"><div class="naam">'+h(k.naam)+'</div>'
-      + '<div class="p"><span class="num">'+G(saldo(k))+'</span> &middot; '+h(sub)+'</div></div>'
+      + '<div class="p"><span class="num">'+G(saldo(k))+'</span> &middot; '+h(sub)+(taalVan(k)==='en'?' &middot; English':'')+'</div></div>'
       + '<button class="knop sag" style="width:auto;min-height:40px;padding:0 14px" data-stuur-een="'+k.id+'">Stuur</button></div>';
   }).join('');
   bladOop('<h3>State stuur</h3>'
