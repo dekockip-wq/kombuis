@@ -377,16 +377,25 @@ function maakPdf(k, maand){
   doc.text(G(dt.voor), R-2, y+5.5, {align:'right'});
   y+=9.5;
 
-  var n=dt.rye.length, beskikbaar=248-y;
+  /* lang beskrywings breek na 'n volgende reël, sodat hulle nie oor die datum loop nie */
+  var BESKR_W=96, REEL=4.2;
+  function reels(e){
+    doc.setFont('helvetica', e.tipe==='betaling'?'bold':'normal'); doc.setFontSize(10);
+    return doc.splitTextToSize(String(itemNaam(e.beskr,tl)), BESKR_W);
+  }
+  var n=dt.rye.length, ekstra=0;
+  dt.rye.forEach(function(e){ ekstra+=reels(e).length-1; });
+  var beskikbaar=248-y-ekstra*REEL;
   var rh = n? Math.min(5.7, Math.max(4.1, beskikbaar/n)) : 5.7;
 
   dt.rye.forEach(function(e){
-    if(y+rh>256){ doc.addPage(); y=tabelkop(kop(false)); y+=3; }
+    var lyne=reels(e), hh=rh+(lyne.length-1)*REEL;
+    if(y+hh>256){ doc.addPage(); y=tabelkop(kop(false)); y+=3; }
     var bet=e.tipe==='betaling';
     doc.setFont('helvetica', bet?'bold':'normal'); doc.setFontSize(10);
     if(bet) doc.setTextColor(BETGROEN[0],BETGROEN[1],BETGROEN[2]);
     else doc.setTextColor(INK[0],INK[1],INK[2]);
-    doc.text(itemNaam(e.beskr,tl), L, y+rh-1.6);
+    lyne.forEach(function(t,i){ doc.text(t, L, y+rh-1.6+i*REEL); });
     if(!bet){ doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]); doc.setFont('helvetica','normal'); }
     doc.text(dKortT(e.datum,tl), 118, y+rh-1.6);
     if(bet) doc.setTextColor(BETGROEN[0],BETGROEN[1],BETGROEN[2]);
@@ -394,8 +403,8 @@ function maakPdf(k, maand){
     doc.setFont('helvetica', bet?'bold':'normal');
     doc.text((bet?'- ':'')+G(e.bedrag), R, y+rh-1.6, {align:'right'});
     doc.setDrawColor(239,235,226); doc.setLineWidth(0.3);
-    doc.line(L, y+rh, R, y+rh);
-    y+=rh;
+    doc.line(L, y+hh, R, y+hh);
+    y+=hh;
   });
   if(!n){
     doc.setFont('helvetica','italic'); doc.setFontSize(9.5);
