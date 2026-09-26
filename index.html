@@ -204,42 +204,6 @@ input,select{font:inherit;color:var(--ink)}
 .instel-item .p{font-size:12.5px;color:var(--muted)}
 .skakel{color:var(--groen);font-weight:700;font-size:14px;text-decoration:underline}
 .voetnota{font-size:12px;color:var(--muted);text-align:center;margin:26px 0 6px;line-height:1.6}
-
-.oortjies{display:flex;gap:4px;background:var(--surface-2);border-radius:12px;padding:4px;margin:0 0 14px}
-.oortjie{flex:1;min-height:40px;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted)}
-.oortjie.aan{background:var(--surface);color:var(--ink);box-shadow:var(--skadu)}
-.syfers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
-.syfer{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px 14px;min-width:0}
-.syfer .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.syfer .b{font-size:20px;font-weight:700;margin-top:3px}
-.syfer .s{font-size:12px;color:var(--muted);margin-top:1px}
-.syfer.in .b{color:var(--groen)}
-.syfer.uit .b{color:var(--klei)}
-.wins{background:var(--groen);color:var(--groen-ink);border-radius:14px;padding:15px 18px;
-  display:flex;justify-content:space-between;align-items:center;gap:10px}
-.wins.verlies{background:var(--klei);color:#fff}
-.wins .l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.9;font-weight:700}
-.wins .sub{font-size:12px;opacity:.85;margin-top:2px}
-.wins .b{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:28px;font-weight:700;white-space:nowrap}
-.staaf{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px}
-.staaf .n{width:32%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.staaf .spoor{flex:1;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
-.staaf .vul{display:block;height:100%;border-radius:99px;background:var(--groen)}
-.staaf.uit .vul{background:var(--klei)}
-.staaf .w{width:84px;text-align:right;font-weight:600}
-.tabel{width:100%;border-collapse:collapse;font-size:14px}
-.tabel th{text-align:right;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-  font-weight:700;padding:0 0 6px;border-bottom:1.5px solid var(--line)}
-.tabel th:first-child,.tabel td:first-child{text-align:left}
-.tabel td{text-align:right;padding:9px 0;border-bottom:1px solid var(--line-soft)}
-.tabel td.pos{color:var(--groen);font-weight:700}
-.tabel td.neg{color:var(--klei);font-weight:700}
-.tabel tr.huidig td{font-weight:700}
-.ry.uitg .bed{color:var(--klei)}
-.ry.ink .bed{color:var(--groen)}
-.kat-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
-.kat-chips .chip{min-height:40px;font-size:14px;align-items:center}
-.kat-chips .chip.aan{border-color:var(--groen);background:var(--groen-sag);color:var(--groen)}
 </style>
 
 </head>
@@ -699,12 +663,12 @@ function saadjie(){
   };
 }
 function laai(){
-  try{var r=localStorage.getItem(SLEUTEL); if(r){S=JSON.parse(r); migreer(); return;}}catch(e){}
-  S=saadjie(); migreer(); stoor();
+  try{var r=localStorage.getItem(SLEUTEL); if(r){S=JSON.parse(r); return;}}catch(e){}
+  S=saadjie(); stoor();
 }
 function stoor(){ try{localStorage.setItem(SLEUTEL,JSON.stringify(S));}catch(e){} }
 function kiekie(){ return JSON.stringify(S); }
-function herstelKiekie(k){ S=JSON.parse(k); migreer(); stoor(); teken(); }
+function herstelKiekie(k){ S=JSON.parse(k); stoor(); teken(); }
 
 /* ============ berekening ============ */
 function G(n){var t=S.besigheid.geld||'$';var neg=n<0;n=Math.abs(n);
@@ -781,7 +745,6 @@ function teken(){
   if(V.naam==='huis') a.innerHTML=skermHuis();
   else if(V.naam==='klant') a.innerHTML=skermKlant(klantVan(V.kid));
   else if(V.naam==='instellings') a.innerHTML=skermInstellings();
-  else if(V.naam==='geld') a.innerHTML=skermGeld();
   bindAksies();
 }
 
@@ -803,7 +766,6 @@ function skermHuis(){
 
   return '<header class="kop"><div><h1>'+h(b.naam)+'</h1><div class="slag">'+h(b.slag)+'</div></div>'
     + '<button class="ikoon" data-instel aria-label="Instellings">'+RAT+'</button></header>'
-    + oortjies('huis')
     + '<div class="opsom"><span class="l">Altesaam uitstaande</span>'
     + '<span class="b num">'+G(totaalUit())+'</span></div>'
     + '<div class="afdeling"><span class="eyebrow">Klante</span>'
@@ -878,8 +840,6 @@ function skermInstellings(){
     + '<div class="afdeling"><span class="eyebrow">Besigheid</span></div>'
     + '<div class="veld"><label for="i-naam">Naam</label><input id="i-naam" value="'+h(b.naam)+'"></div>'
     + '<div class="veld"><label for="i-slag">Onderskrif</label><input id="i-slag" value="'+h(b.slag)+'"></div>'
-    + '<div class="veld"><label for="i-naamen">Naam op Engelse state</label><input id="i-naamen" value="'+h(b.naamEn||NAAM_EN_STD)+'"></div>'
-    + '<div class="veld"><label for="i-slagen">Onderskrif op Engelse state</label><input id="i-slagen" value="'+h(b.slagEn||SLAG_EN_STD)+'"></div>'
     + '<div class="veld"><label for="i-eien">Jou naam (onderaan die staat)</label><input id="i-eien" value="'+h(b.eienaar)+'"></div>'
     + '<div class="veld"><label for="i-geld">Geldteken</label><input id="i-geld" value="'+h(b.geld)+'" style="max-width:100px"></div>'
     + '<button class="knop sag" data-stoorbesigheid>Stoor</button>'
@@ -915,9 +875,7 @@ var ITEM_EN={'ete':'Meal','betaling':'Payment','droëwors':'Droëwors','biltong'
 function taalVan(k){ return (k && k.taal==='en') ? 'en' : 'af'; }
 function T(k){ return TAAL[taalVan(k)]; }
 function itemNaam(beskr, tl){ if(tl!=='en') return beskr; var e=ITEM_EN[String(beskr).toLowerCase()]; return e||beskr; }
-var NAAM_EN_STD="Crisna's Hot Kitchen", SLAG_EN_STD='Homemade meals & biltong';
-function naamVan(tl){ var b=S.besigheid; if(tl==='en') return b.naamEn||NAAM_EN_STD; return b.naam; }
-function slagVan(tl){ var b=S.besigheid; if(tl==='en') return b.slagEn||SLAG_EN_STD; return b.slag||''; }
+function slagVan(tl){ var sl=S.besigheid.slag||''; if(tl==='en' && sl==='Tuisgemaakte etes & biltong') return 'Homemade meals & biltong'; return sl; }
 function dKortT(iso,tl){ if(tl!=='en') return dKort(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]; }
 function dVolT(iso,tl){ if(tl!=='en') return dVol(iso); var p=iso.split('-'); return (+p[2])+' '+MON_EN[+p[1]-1]+' '+p[0]; }
 function maandNaamT(m,tl){ if(tl!=='en') return maandNaam(m); return MONTHS_EN[+m.slice(5,7)-1]+' '+m.slice(0,4); }
@@ -930,7 +888,7 @@ function maakPdf(k, maand){
   function kop(eerste){
     doc.setTextColor(GROEN[0],GROEN[1],GROEN[2]);
     doc.setFont('times','bold'); doc.setFontSize(22);
-    doc.text(naamVan(tl), L, 24);
+    doc.text(b.naam, L, 24);
     doc.setFont('helvetica','normal'); doc.setFontSize(9);
     doc.setTextColor(GRYS[0],GRYS[1],GRYS[2]);
     doc.text(slagVan(tl), L, 29.5);
@@ -1033,7 +991,7 @@ function maakPdf(k, maand){
   doc.text(W.dankie, L, 280);
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
   doc.setTextColor(LIG[0],LIG[1],LIG[2]);
-  doc.text(naamVan(tl), R, 277, {align:'right'});
+  doc.text(b.naam, R, 277, {align:'right'});
   if(b.eienaar) doc.text(b.eienaar, R, 281.5, {align:'right'});
   return doc;
 }
@@ -1089,7 +1047,7 @@ function staatHtml(k, maand){
   if(!dt.rye.length) rye+='<tr><td colspan="3" style="color:#8A8378;font-style:italic;padding:8px 0">'+W.leeg+'</td></tr>';
   var krediet=dt.eind<0;
   return '<div class="staat" id="staat-voorskou">'
-    + '<div class="sk"><div><h4>'+h(naamVan(tl))+'</h4><div class="sl">'+h(slagVan(tl))+'</div></div>'
+    + '<div class="sk"><div><h4>'+h(b.naam)+'</h4><div class="sl">'+h(slagVan(tl))+'</div></div>'
     + '<div class="r"><div class="e">'+W.staat+'</div><div class="m">'+h(periodeTeks(dt,tl))+'</div></div></div>'
     + '<div class="aan"><div class="e">'+W.rekVan+'</div><div class="n">'+h(k.naam)+'</div></div>'
     + '<table><thead><tr><th>'+W.beskr+'</th><th>'+W.datum+'</th><th class="rg">'+W.bedrag+'</th></tr></thead>'
@@ -1102,7 +1060,7 @@ function staatHtml(k, maand){
     + (krediet?W.krediet:W.uit)+'</span><span class="t2">'+G(Math.abs(dt.eind))+'</span></div>'
     + '</div>'
     + '<div class="vt"><span class="dk">'+W.dankie+'</span>'
-    + '<span class="kl">'+h(naamVan(tl))+'<br>'+h(b.eienaar)+'</span></div></div>';
+    + '<span class="kl">'+h(b.naam)+'<br>'+h(b.eienaar)+'</span></div></div>';
 }
 
 function bladStaat(k, maand){
@@ -1220,9 +1178,6 @@ function bindAksies(){
   var t=app.querySelector('[data-terug]'); if(t) t.onclick=function(){gaan('huis');};
   var ins=app.querySelector('[data-instel]'); if(ins) ins.onclick=function(){gaan('instellings');};
   var nk=app.querySelector('[data-nuweklant]'); if(nk) nk.onclick=bladNuweKlant;
-  app.querySelectorAll('[data-oortjie]').forEach(function(el){
-    el.onclick=function(){ var n=el.getAttribute('data-oortjie'); if(n!==V.naam){ V={naam:n,kid:null}; teken(); } };});
-  if(V.naam==='geld') bindGeld(app);
   var sa=app.querySelector('[data-statealmal]'); if(sa) sa.onclick=function(){
     if(!S.klante.length){toon('Nog geen klante nie');return;} bladAlmal();};
 
@@ -1271,8 +1226,6 @@ function bindAksies(){
       var voor=kiekie();
       S.besigheid.naam=$('#i-naam').value.trim()||S.besigheid.naam;
       S.besigheid.slag=$('#i-slag').value.trim();
-      S.besigheid.naamEn=$('#i-naamen').value.trim()||NAAM_EN_STD;
-      S.besigheid.slagEn=$('#i-slagen').value.trim()||SLAG_EN_STD;
       S.besigheid.eienaar=$('#i-eien').value.trim();
       S.besigheid.geld=$('#i-geld').value.trim()||'$';
       stoor(); teken(); toon('Gestoor', voor);
@@ -1380,7 +1333,7 @@ $('#blad').addEventListener('click', function(ev){
     try{
       var nuwe=JSON.parse(teks);
       if(!nuwe || !nuwe.klante) throw 0;
-      var voor7=kiekie(); S=nuwe; migreer(); stoor(); bladToe(); gaan('huis'); toon('Data herstel', voor7);
+      var voor7=kiekie(); S=nuwe; stoor(); bladToe(); gaan('huis'); toon('Data herstel', voor7);
     }catch(err){ toon('Die teks lyk nie soos &rsquo;n rugsteun nie'); }
     return;
   }
@@ -1415,184 +1368,6 @@ function bladHerstel(vooraf){
       }catch(e){ toon('Hou die teks in en kies Kopieer'); }
     };
   }
-}
-
-
-/* ============ inkomste & uitgawes ============ */
-var KAT_STD=['Vleis & kos','Kruideniers','Verpakking','Gas & krag','Vervoer','Ander'];
-function migreer(){
-  if(!S.uitgawes) S.uitgawes=[];
-  if(!S.inkomste) S.inkomste=[];
-  if(!S.kategoriee || !S.kategoriee.length) S.kategoriee=KAT_STD.slice();
-}
-var GM=null;
-function oortjies(akt){
-  return '<div class="oortjies" role="tablist">'
-    + '<button class="oortjie'+(akt==='huis'?' aan':'')+'" data-oortjie="huis" role="tab">Klante</button>'
-    + '<button class="oortjie'+(akt==='geld'?' aan':'')+'" data-oortjie="geld" role="tab">Geld</button></div>';
-}
-function inMaand(iso,m){ return iso && iso.slice(0,7)===m; }
-function geldData(m){
-  var verkope=0, ontvang=0, kontant=0, uit=0, perItem={}, perKat={};
-  S.klante.forEach(function(k){ k.inskrywings.forEach(function(e){
-    if(!inMaand(e.datum,m)) return;
-    if(e.tipe==='betaling') ontvang+=e.bedrag;
-    else { verkope+=e.bedrag; perItem[e.beskr]=(perItem[e.beskr]||0)+e.bedrag; }
-  });});
-  S.inkomste.forEach(function(e){ if(!inMaand(e.datum,m)) return;
-    kontant+=e.bedrag; verkope+=e.bedrag; perItem[e.beskr]=(perItem[e.beskr]||0)+e.bedrag; });
-  S.uitgawes.forEach(function(e){ if(!inMaand(e.datum,m)) return;
-    uit+=e.bedrag; perKat[e.kategorie]=(perKat[e.kategorie]||0)+e.bedrag; });
-  var ingekom=ontvang+kontant;
-  return {verkope:verkope, ontvang:ontvang, kontant:kontant, ingekom:ingekom, uit:uit,
-          wins:ingekom-uit, perItem:perItem, perKat:perKat};
-}
-function alleMaande(){
-  var st={}; st[huidigeMaand()]=1;
-  S.klante.forEach(function(k){ k.inskrywings.forEach(function(e){ st[e.datum.slice(0,7)]=1; }); });
-  S.inkomste.concat(S.uitgawes).forEach(function(e){ st[e.datum.slice(0,7)]=1; });
-  return Object.keys(st).sort().reverse();
-}
-function stawe(obj, klas){
-  var ks=Object.keys(obj).sort(function(a,b){return obj[b]-obj[a];});
-  if(!ks.length) return '<p class="leeg" style="padding:12px">Niks hierdie maand nie.</p>';
-  var mx=obj[ks[0]]||1;
-  return ks.map(function(k){
-    return '<div class="staaf '+(klas||'')+'"><span class="n">'+h(k)+'</span>'
-      + '<span class="spoor"><span class="vul" style="width:'+Math.max(3,Math.round(obj[k]/mx*100))+'%"></span></span>'
-      + '<span class="w num">'+G(obj[k])+'</span></div>';
-  }).join('');
-}
-function skermGeld(){
-  var b=S.besigheid, m=GM||huidigeMaand(), d=geldData(m);
-  var opsies=alleMaande().map(function(x){
-    return '<option value="'+x+'"'+(x===m?' selected':'')+'>'+h(maandNaam(x))+'</option>';}).join('');
-  var lys=S.uitgawes.filter(function(e){return inMaand(e.datum,m);}).map(function(e){return {t:'u',e:e};})
-    .concat(S.inkomste.filter(function(e){return inMaand(e.datum,m);}).map(function(e){return {t:'i',e:e};}))
-    .sort(function(a,b){return a.e.datum<b.e.datum?1:(a.e.datum>b.e.datum?-1:0);});
-  var rye=lys.map(function(x){
-    var e=x.e, u=x.t==='u';
-    return '<button class="ry '+(u?'uitg':'ink')+'" data-geldry="'+x.t+':'+e.id+'">'
-      + '<span class="d"><span class="naam">'+h(e.beskr||e.kategorie)+'</span>'
-      + '<span class="dat">'+h(dVol(e.datum))+(u?' &middot; '+h(e.kategorie):' &middot; Kontantverkoop')+'</span></span>'
-      + '<span class="bed num">'+(u?'&minus; ':'+ ')+G(e.bedrag)+'</span></button>';
-  }).join('') || '<p class="leeg">Nog geen uitgawes of kontantverkope hierdie maand nie.<br>Tik die knoppies onder om een by te voeg.</p>';
-  var ms=alleMaande().slice(0,6), tr=ms.map(function(x){
-    var g=geldData(x);
-    return '<tr'+(x===m?' class="huidig"':'')+'><td>'+h(MAANDE[+x.slice(5,7)-1]+' '+x.slice(2,4))+'</td>'
-      + '<td class="num">'+G(g.ingekom)+'</td><td class="num">'+G(g.uit)+'</td>'
-      + '<td class="num '+(g.wins<0?'neg':'pos')+'">'+G(g.wins)+'</td></tr>';
-  }).join('');
-  var nUit=S.uitgawes.filter(function(e){return inMaand(e.datum,m);}).length;
-  return '<header class="kop"><div><h1>'+h(b.naam)+'</h1><div class="slag">'+h(b.slag)+'</div></div>'
-    + '<button class="ikoon" data-instel aria-label="Instellings">'+RAT+'</button></header>'
-    + oortjies('geld')
-    + '<div class="veld"><label for="g-maand">Maand</label><select id="g-maand">'+opsies+'</select></div>'
-    + '<div class="wins'+(d.wins<0?' verlies':'')+'"><div><div class="l">'+(d.wins<0?'Verlies':'Wins')+' hierdie maand</div>'
-    + '<div class="sub">Geld ingekom min uitgawes</div></div>'
-    + '<span class="b num">'+G(d.wins)+'</span></div>'
-    + '<div class="syfers">'
-    + '<div class="syfer in"><div class="l">Ingekom</div><div class="b num">'+G(d.ingekom)+'</div>'
-    + '<div class="s">Betalings '+G(d.ontvang)+(d.kontant?' + kontant '+G(d.kontant):'')+'</div></div>'
-    + '<div class="syfer uit"><div class="l">Uitgawes</div><div class="b num">'+G(d.uit)+'</div>'
-    + '<div class="s">'+nUit+(nUit===1?' aankoop':' aankope')+'</div></div>'
-    + '<div class="syfer"><div class="l">Verkoop</div><div class="b num">'+G(d.verkope)+'</div>'
-    + '<div class="s">Betaal of nie</div></div>'
-    + '<div class="syfer"><div class="l">Klante skuld</div><div class="b num">'+G(totaalUit())+'</div>'
-    + '<div class="s">Altesaam, vandag</div></div>'
-    + '</div>'
-    + '<div class="afdeling"><span class="eyebrow">Wat jy verkoop het</span></div>'
-    + stawe(d.perItem)
-    + '<div class="afdeling"><span class="eyebrow">Waarop jy geld uitgegee het</span></div>'
-    + stawe(d.perKat,'uit')
-    + '<div class="afdeling"><span class="eyebrow">Uitgawes &amp; kontantverkope</span></div>'
-    + rye
-    + '<div class="afdeling"><span class="eyebrow">Laaste maande</span></div>'
-    + '<table class="tabel"><thead><tr><th>Maand</th><th>In</th><th>Uit</th><th>Wins</th></tr></thead><tbody>'+tr+'</tbody></table>'
-    + '<p class="voetnota">&ldquo;Ingekom&rdquo; is geld wat jy werklik gekry het.<br>&ldquo;Verkoop&rdquo; sluit in wat klante nog skuld.</p>'
-    + '<div class="balk"><div class="binne">'
-    + '<button class="knop sag" data-nuweink>+ Kontant</button>'
-    + '<button class="knop" data-nuweuitg>+ Uitgawe</button>'
-    + '</div></div>';
-}
-function bindGeld(app){
-  var sel=app.querySelector('#g-maand'); if(sel) sel.onchange=function(){ GM=sel.value; teken(); };
-  var nu=app.querySelector('[data-nuweuitg]'); if(nu) nu.onclick=function(){ bladUitgawe(null); };
-  var ni=app.querySelector('[data-nuweink]'); if(ni) ni.onclick=function(){ bladInkomste(null); };
-  app.querySelectorAll('[data-geldry]').forEach(function(el){
-    el.onclick=function(){
-      var p=el.getAttribute('data-geldry').split(':');
-      if(p[0]==='u'){ var e=S.uitgawes.filter(function(x){return x.id===p[1];})[0]; if(e) bladUitgawe(e); }
-      else { var e2=S.inkomste.filter(function(x){return x.id===p[1];})[0]; if(e2) bladInkomste(e2); }
-    };});
-}
-function standaardDatum(){ var m=GM||huidigeMaand(); return m===huidigeMaand()? vandagISO() : m+'-01'; }
-function bladUitgawe(e, voorKat, voorWaardes){
-  var nuut=!e, kat=voorKat||(nuut? S.kategoriee[0] : e.kategorie);
-  var chips=S.kategoriee.map(function(k){
-    return '<button class="chip'+(k===kat?' aan':'')+'" data-kat="'+h(k)+'">'+h(k)+'</button>';}).join('')
-    + '<button class="chip" data-nuwekat>+ Nuwe</button>';
-  var w=voorWaardes||{};
-  bladOop('<h3>'+(nuut?'Nuwe uitgawe':'Uitgawe')+'</h3>'
-    + '<div class="veld"><label>Waarvoor?</label></div><div class="kat-chips">'+chips+'</div>'
-    + '<div id="u-nuwekat" hidden><div class="veld"><label for="u-katnaam">Nuwe kategorie</label><input id="u-katnaam" placeholder="bv. Gereedskap"></div>'
-    + '<button class="knop sag" id="u-katvoeg" style="margin-bottom:13px">Voeg kategorie by</button></div>'
-    + veldGetal('u-bedrag','Bedrag', w.bedrag!=null?w.bedrag:(nuut?'':e.bedrag))
-    + '<div class="veld"><label for="u-beskr">Nota (opsioneel)</label><input id="u-beskr" value="'+h(w.beskr!=null?w.beskr:(nuut?'':(e.beskr||'')))+'" placeholder="bv. Beesvleis by Spar"></div>'
-    + veldDatum('u-datum','Datum', w.datum||(nuut?standaardDatum():e.datum))
-    + '<div class="knoppe">'
-    + (nuut?'<button class="knop sag" data-toe>Kanselleer</button>':'<button class="knop gevaar" id="u-weg">Verwyder</button>')
-    + '<button class="knop" id="u-stoor">Stoor</button></div>');
-  [].forEach.call(document.querySelectorAll('#blad [data-kat]'),function(c){
-    c.onclick=function(ev){ ev.stopPropagation(); kat=c.getAttribute('data-kat');
-      [].forEach.call(document.querySelectorAll('#blad [data-kat]'),function(x){ x.classList.toggle('aan', x===c); }); }; });
-  $('#blad [data-nuwekat]').onclick=function(ev){ ev.stopPropagation(); $('#u-nuwekat').hidden=false; $('#u-katnaam').focus(); };
-  $('#u-katvoeg').onclick=function(ev){
-    ev.stopPropagation();
-    var n=$('#u-katnaam').value.trim(); if(!n) return;
-    if(S.kategoriee.indexOf(n)<0){ S.kategoriee.splice(Math.max(0,S.kategoriee.length-1),0,n); stoor(); }
-    bladUitgawe(e, n, {bedrag:$('#u-bedrag').value, beskr:$('#u-beskr').value, datum:$('#u-datum').value});
-  };
-  $('#u-stoor').onclick=function(){
-    var bed=getal('u-bedrag'); if(!bed){ toon('Vul die bedrag in'); return; }
-    var voor=kiekie(), dat=$('#u-datum').value||vandagISO(), bs=$('#u-beskr').value.trim();
-    if(nuut) S.uitgawes.push({id:id(),datum:dat,kategorie:kat,beskr:bs,bedrag:bed});
-    else { e.datum=dat; e.kategorie=kat; e.beskr=bs; e.bedrag=bed; }
-    GM=dat.slice(0,7); stoor(); bladToe(); teken(); toon(nuut?'Uitgawe gestoor':'Gestoor', voor);
-  };
-  var wg=$('#u-weg'); if(wg) wg.onclick=function(){
-    var voor=kiekie(); S.uitgawes=S.uitgawes.filter(function(x){return x.id!==e.id;});
-    stoor(); bladToe(); teken(); toon('Uitgawe verwyder', voor);
-  };
-}
-function bladInkomste(e){
-  var nuut=!e;
-  var chips=S.items.map(function(it){
-    return '<button class="chip" data-inkitem="'+it.id+'">'+h(it.naam)+'<span class="p num">'+G(it.prys)+'</span></button>';}).join('');
-  bladOop('<h3>Kontantverkoop</h3>'
-    + '<p class="hint">Vir iemand wat dadelik betaal en nie &rsquo;n rekening by jou het nie.</p>'
-    + (nuut?'<div class="kat-chips">'+chips+'</div>':'')
-    + '<div class="veld"><label for="k-beskr">Wat is verkoop?</label><input id="k-beskr" value="'+h(nuut?'':e.beskr)+'" placeholder="bv. Biltong"></div>'
-    + veldGetal('k-bedrag','Bedrag', nuut?'':e.bedrag)
-    + veldDatum('k-datum','Datum', nuut?standaardDatum():e.datum)
-    + '<div class="knoppe">'
-    + (nuut?'<button class="knop sag" data-toe>Kanselleer</button>':'<button class="knop gevaar" id="k-weg">Verwyder</button>')
-    + '<button class="knop" id="k-stoor">Stoor</button></div>');
-  [].forEach.call(document.querySelectorAll('#blad [data-inkitem]'),function(c){
-    c.onclick=function(ev){ ev.stopPropagation();
-      var it=S.items.filter(function(x){return x.id===c.getAttribute('data-inkitem');})[0];
-      if(it){ $('#k-beskr').value=it.naam; $('#k-bedrag').value=it.prys; } };});
-  $('#k-stoor').onclick=function(){
-    var bed=getal('k-bedrag'); if(!bed){ toon('Vul die bedrag in'); return; }
-    var voor=kiekie(), dat=$('#k-datum').value||vandagISO(), bs=$('#k-beskr').value.trim()||'Kontantverkoop';
-    if(nuut) S.inkomste.push({id:id(),datum:dat,beskr:bs,bedrag:bed});
-    else { e.datum=dat; e.beskr=bs; e.bedrag=bed; }
-    GM=dat.slice(0,7); stoor(); bladToe(); teken(); toon(nuut?'Verkoop gestoor':'Gestoor', voor);
-  };
-  var wg=$('#k-weg'); if(wg) wg.onclick=function(){
-    var voor=kiekie(); S.inkomste=S.inkomste.filter(function(x){return x.id!==e.id;});
-    stoor(); bladToe(); teken(); toon('Verwyder', voor);
-  };
 }
 
 /* ============ begin ============ */
