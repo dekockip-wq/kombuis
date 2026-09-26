@@ -1,0 +1,239 @@
+:root{
+  --ground:#F7F1E7; --surface:#FFFFFF; --surface-2:#F0E8DA;
+  --line:#E7DDCD; --line-soft:#F0E8DC;
+  --ink:#2A1B14; --muted:#77675B;
+  --merk:#8E3B24; --merk-ink:#FFFFFF;
+  --bet:#2F6B45; --bet-ink:#FFFFFF; --bet-sag:#E4EEE6; --merk-sag:#F5E4DC;
+  --klei:#B3261E; --amber:#86621A; --toast-knop:#F0B79E;
+  --skadu:0 1px 2px rgba(42,27,20,.05), 0 6px 18px rgba(42,27,20,.06);
+}
+/* merk-kleure volg die logo: roes (merk), donkerbruin (ink), room (grond); groen bly vir betalings */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#17120F; --surface:#211A16; --surface-2:#2A211C;
+    --line:#3A2F28; --line-soft:#2C241F;
+    --ink:#F2E9DD; --muted:#A99A8C;
+    --merk:#E09A7C; --merk-ink:#1C120D;
+    --bet:#84AE8E; --bet-ink:#12180F; --bet-sag:#232D26; --merk-sag:#3A2620;
+    --klei:#F08A7E; --amber:#D2A75E; --toast-knop:#8E3B24;
+    --skadu:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"]{
+    --ground:#17120F; --surface:#211A16; --surface-2:#2A211C;
+    --line:#3A2F28; --line-soft:#2C241F;
+    --ink:#F2E9DD; --muted:#A99A8C;
+    --merk:#E09A7C; --merk-ink:#1C120D;
+    --bet:#84AE8E; --bet-ink:#12180F; --bet-sag:#232D26; --merk-sag:#3A2620;
+    --klei:#F08A7E; --amber:#D2A75E; --toast-knop:#8E3B24;
+    --skadu:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',ui-sans-serif,system-ui,sans-serif;font-size:16px;line-height:1.45;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:540px;margin:0 auto;min-height:100vh;background:var(--ground);
+  padding:0 16px calc(112px + env(safe-area-inset-bottom));}
+h1,h2,h3{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-weight:700;
+  margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font:inherit;color:var(--ink)}
+.num{font-variant-numeric:tabular-nums}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* ---------- kop ---------- */
+.kop{padding:calc(18px + env(safe-area-inset-top)) 0 14px;display:flex;
+  justify-content:space-between;align-items:flex-start;gap:12px}
+.kop h1{font-size:26px;color:var(--merk);line-height:1.1}
+.kop .slag{font-size:12.5px;color:var(--muted);margin-top:3px}
+.kop h1.merkkop{line-height:0;color:var(--ink)}
+.kop .logo{display:block;height:64px;width:auto}
+.kop h1.merkkop + .slag{margin-top:8px}
+.ikoon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:var(--surface);border:1px solid var(--line);flex:none}
+.ikoon svg{width:19px;height:19px;stroke:var(--muted);fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- opsomming ---------- */
+.opsom{background:var(--merk);color:var(--merk-ink);border-radius:14px;
+  padding:16px 18px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.opsom .l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:600}
+.opsom .b{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:29px;font-weight:700}
+
+/* ---------- lys ---------- */
+.afdeling{display:flex;justify-content:space-between;align-items:center;margin:22px 0 9px}
+.kaarte{display:flex;flex-direction:column;gap:9px}
+.kaart{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;
+  text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:13px;
+  padding:14px 15px;box-shadow:var(--skadu);transition:transform .12s ease}
+.kaart:active{transform:scale(.985)}
+.kaart .d{display:flex;flex-direction:column;min-width:0;gap:1px}
+.kaart .naam{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:19px;font-weight:700;line-height:1.15}
+.kaart .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.kaart .bedrag{font-size:18px;font-weight:700;text-align:right;white-space:nowrap}
+.pil{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;background:var(--bet-sag);color:var(--bet)}
+.pil.krediet{background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber)}
+
+/* ---------- knoppies ---------- */
+.knop{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:48px;padding:0 18px;border-radius:12px;font-weight:700;font-size:15px;
+  background:var(--merk);color:var(--merk-ink);width:100%}
+.knop.sag{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.knop.lyn{background:transparent;color:var(--merk);border:1.5px solid var(--merk)}
+.knop.gevaar{background:transparent;color:var(--klei);border:1.5px solid var(--klei)}
+.knop:disabled{opacity:.45}
+.knop:focus-visible,.kaart:focus-visible,.chip:focus-visible,.terug:focus-visible{
+  outline:2.5px solid var(--merk);outline-offset:2px}
+.knoppe{display:flex;gap:9px}
+
+/* ---------- klant ---------- */
+.terug{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;
+  font-weight:600;padding:6px 0;margin-top:calc(10px + env(safe-area-inset-top))}
+.terug svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.klantkop{margin:6px 0 16px}
+.klantkop h2{font-size:31px}
+.saldoblok{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:15px 17px;display:flex;justify-content:space-between;align-items:baseline;box-shadow:var(--skadu)}
+.saldoblok .b{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:27px;font-weight:700}
+.saldoblok.skuld .b{color:var(--ink)}
+.saldoblok.betaal .b{color:var(--bet)}
+.saldoblok.krediet .b{color:var(--amber)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:inline-flex;align-items:baseline;gap:7px;min-height:46px;padding:0 15px;
+  border-radius:11px;background:var(--surface);border:1px solid var(--line);
+  font-weight:600;font-size:15px;box-shadow:var(--skadu);transition:transform .1s ease}
+.chip:active{transform:scale(.96)}
+.chip .p{font-size:12.5px;color:var(--muted);font-weight:500}
+.chip.betaling{border-color:var(--bet);color:var(--bet);background:var(--bet-sag);box-shadow:none}
+
+/* ---------- inskrywings ---------- */
+.maandkop{display:flex;justify-content:space-between;align-items:baseline;
+  margin:22px 0 6px;padding-bottom:5px;border-bottom:1.5px solid var(--line)}
+.maandkop .m{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:16px;font-weight:700}
+.maandkop .t{font-size:12.5px;color:var(--muted);font-weight:600}
+.ry{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:11px 2px;border-bottom:1px solid var(--line-soft)}
+.ry .d{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ry .naam{font-size:15.5px}
+.ry .dat{font-size:12.5px;color:var(--muted);margin-top:1px}
+.ry .bed{font-size:15.5px;font-weight:600;white-space:nowrap}
+.ry.bet .naam,.ry.bet .bed{color:var(--bet);font-weight:700}
+.leeg{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px;line-height:1.6}
+
+/* ---------- vaste balk ---------- */
+.balk{position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:color-mix(in srgb,var(--ground) 92%,transparent);
+  backdrop-filter:blur(12px);border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.balk .binne{max-width:540px;margin:0 auto;display:flex;gap:9px}
+
+/* ---------- blad (sheet) ---------- */
+.oorlaag{position:fixed;inset:0;z-index:60;background:rgba(20,22,18,.42);
+  display:flex;align-items:flex-end;justify-content:center}
+.oorlaag[hidden]{display:none!important}
+.blad{width:100%;max-width:540px;background:var(--surface);
+  border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow-y:auto;animation:op .22s ease}
+@keyframes op{from{transform:translateY(18px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.blad{animation:none}.kaart,.chip{transition:none}}
+.blad h3{font-size:21px;margin-bottom:14px}
+.greep{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 14px}
+.veld{margin-bottom:13px}
+.veld label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px}
+.veld input,.veld select,.veld textarea{width:100%;min-height:48px;padding:11px 13px;
+  background:var(--ground);border:1.5px solid var(--line);border-radius:11px;font-size:16px;
+  font-family:inherit}
+.veld textarea{min-height:110px;resize:vertical;font-size:13px}
+.veld input:focus,.veld select:focus,.veld textarea:focus{outline:none;border-color:var(--merk)}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.5;margin:-4px 0 13px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(86px + env(safe-area-inset-bottom));z-index:80;
+  background:var(--ink);color:var(--ground);border-radius:11px;padding:11px 14px;
+  display:flex;align-items:center;gap:14px;font-size:14px;font-weight:600;
+  box-shadow:0 8px 26px rgba(0,0,0,.24);width:max-content;max-width:calc(100% - 32px)}
+.toast[hidden]{display:none!important}
+.toast button{color:var(--toast-knop);font-weight:700;text-decoration:underline;white-space:nowrap}
+
+/* ---------- staat voorskou ---------- */
+.staat{background:#FFFFFF;color:#33302B;border-radius:12px;padding:22px 20px;
+  border:1px solid var(--line);box-shadow:var(--skadu)}
+.staat .sk{display:flex;justify-content:space-between;align-items:flex-start;
+  border-bottom:2.5px solid #8E3B24;padding-bottom:12px;gap:10px}
+.staat .sk h4{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:20px;color:#2A1B14;margin:0;font-weight:700}
+.staat .sk .staatlogo{display:block;height:44px;width:auto}
+.staat .sk .staatlogo + .sl{margin-top:6px}
+.staat .merkry{display:flex;align-items:center;gap:9px}
+.staat .merkry .ik{width:32px;height:32px;flex:none}
+.staat .sk .r .m{white-space:nowrap}
+.staat .sk .sl{font-size:11px;color:#77675B;margin-top:2px}
+.staat .sk .r{text-align:right}
+.staat .sk .r .e{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#A69C8C;font-weight:600}
+.staat .sk .r .m{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:14px;color:#8E3B24}
+.staat .aan{margin:14px 0 4px}
+.staat .aan .e{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#A69C8C;font-weight:600}
+.staat .aan .n{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:22px;font-weight:700}
+.staat table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+.staat th{text-align:left;font-size:9px;letter-spacing:.13em;text-transform:uppercase;
+  color:#8A8378;border-bottom:1.5px solid #DED8CC;padding-bottom:4px;font-weight:600}
+.staat td{padding:4.5px 0;border-bottom:1px solid #EFEBE2}
+.staat .rg{text-align:right;font-variant-numeric:tabular-nums}
+.staat tr.sal td{background:#F7F4ED;font-weight:700;padding-left:6px;padding-right:6px}
+.staat tr.btl td{color:#2F6B45;font-weight:700}
+.staat .som{margin:14px 0 0 auto;width:min(230px,100%)}
+.staat .som .sr{display:flex;justify-content:space-between;padding:3px 0;font-size:12.5px}
+.staat .som .sr.g{color:#2F6B45}
+.staat .tot{margin-top:8px;background:#8E3B24;color:#fff;border-radius:4px;padding:9px 12px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.staat .tot .t1{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase}
+.staat .tot .t2{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:19px;font-variant-numeric:tabular-nums}
+.staat .vt{margin-top:16px;padding-top:11px;border-top:1px solid #E7E1D5;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.staat .vt .dk{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-style:italic;font-size:12.5px;color:#8E3B24}
+.staat .vt .kl{font-size:9.5px;color:#A69C8C;text-align:right;line-height:1.5}
+
+.instel-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.instel-item .d{flex:1}
+.instel-item .naam{font-weight:600}
+.instel-item .p{font-size:12.5px;color:var(--muted)}
+.skakel{color:var(--merk);font-weight:700;font-size:14px;text-decoration:underline}
+.voetnota{font-size:12px;color:var(--muted);text-align:center;margin:26px 0 6px;line-height:1.6}
+
+.oortjies{display:flex;gap:4px;background:var(--surface-2);border-radius:12px;padding:4px;margin:0 0 14px}
+.oortjie{flex:1;min-height:40px;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted)}
+.oortjie.aan{background:var(--surface);color:var(--ink);box-shadow:var(--skadu)}
+.syfers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.syfer{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px 14px;min-width:0}
+.syfer .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.syfer .b{font-size:20px;font-weight:700;margin-top:3px}
+.syfer .s{font-size:12px;color:var(--muted);margin-top:1px}
+.syfer.in .b{color:var(--bet)}
+.syfer.uit .b{color:var(--klei)}
+.wins{background:var(--bet);color:var(--bet-ink);border-radius:14px;padding:15px 18px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wins.verlies{background:var(--klei);color:#fff}
+.wins .l{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.9;font-weight:700}
+.wins .sub{font-size:12px;opacity:.85;margin-top:2px}
+.wins .b{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;font-size:28px;font-weight:700;white-space:nowrap}
+.staaf{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px}
+.staaf .n{width:32%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.staaf .spoor{flex:1;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.staaf .vul{display:block;height:100%;border-radius:99px;background:var(--bet)}
+.staaf.uit .vul{background:var(--klei)}
+.staaf .w{width:84px;text-align:right;font-weight:600}
+.tabel{width:100%;border-collapse:collapse;font-size:14px}
+.tabel th{text-align:right;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  font-weight:700;padding:0 0 6px;border-bottom:1.5px solid var(--line)}
+.tabel th:first-child,.tabel td:first-child{text-align:left}
+.tabel td{text-align:right;padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.tabel td.pos{color:var(--bet);font-weight:700}
+.tabel td.neg{color:var(--klei);font-weight:700}
+.tabel tr.huidig td{font-weight:700}
+.ry.uitg .bed{color:var(--klei)}
+.ry.ink .bed{color:var(--bet)}
+.kat-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.kat-chips .chip{min-height:40px;font-size:14px;align-items:center}
+.kat-chips .chip.aan{border-color:var(--merk);background:var(--merk-sag);color:var(--merk)}

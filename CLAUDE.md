@@ -1,39 +1,55 @@
 # Crisna se Kombuis – app
 
-Single-file web app (`index.html`) vir Crisna se klein kos-besigheid (etes en biltong). Sy gebruik dit net op haar iPhone, via Safari as tuisskerm-app. Die UI is in Afrikaans, en die code identifiers ook (`saldo`, `klante`, `stoor`, `teken`, …).
+'n Klein web-app vir Crisna se kos-besigheid (etes en biltong). Sy gebruik dit net op haar iPhone, in Safari as tuisskerm-app. Die UI is in Afrikaans, en die code identifiers ook (`saldo`, `klante`, `stoor`, `teken`, …).
+
+## Lêers
+| Lêer | Wat | Raak aan? |
+|---|---|---|
+| `index.html` | net die raamwerk: head, ikone, 3 `div`s, script-tags | selde |
+| `style.css` | alle CSS (tokens bo-aan) | ja |
+| `app.js` | die hele app | ja — hier gebeur die werk |
+| `lib/jspdf.umd.min.js` | jsPDF 2.5.1 (MIT), vir PDF-state | **nooit** |
+| `sw.js` | service worker: app werk sonder internet | net `VERSIE` |
+| `manifest.webmanifest`, `ikone/` | tuisskerm-ikoon en naam | selde |
+
+Daar is geen build step en geen framework nie.
 
 ## Deploy
-- Repo `dekockip-wq/kombuis`, branch **`gh-pages`**. Daar is geen build step nie: `git push` beteken dit is live.
-- GitHub Pages ontplooi binne ~30 s. Die CDN kan tot 10 min 'n ou kopie wys.
+- Repo `dekockip-wq/kombuis`, branch **`gh-pages`**. `git push` beteken dit is live op https://dekockip-wq.github.io/kombuis/.
+- **By elke deploy:**
+  1. Verhoog `VERSIE` in `sw.js`.
+  2. Verhoog die `?v=` agter `style.css` en `app.js` in `index.html`.
+
+  Anders hou haar foon die ou weergawe.
+- Die service worker gebruik "netwerk eerste". Met internet kry sy altyd die nuutste weergawe, en sonder internet die laaste kopie wat gekas is.
 - `.nojekyll` bly in die repo.
 
 ## Werkreëls (belangrik)
-1. **Doen altyd eers `git pull`** voor enige verandering. Op 26 Sep 2026 het 'n ou kopie van `index.html` die Geld-oortjie oorskryf. Dit is herstel uit git (`0330f7c`), maar moet nie weer gebeur nie.
-2. Wysig `index.html` **in plek**. Moet dit nooit vervang met 'n lêer van elders (Downloads, 'n chat) sonder om eers te diff teen `HEAD` nie.
+1. **Doen altyd eers `git pull`** voor enige verandering. Op 26 Sep 2026 het 'n ou kopie van `index.html` die Geld-oortjie oorskryf. Dit is herstel, maar moet nooit weer gebeur nie.
+2. Wysig lêers **in plek**. Moet hulle nooit vervang met 'n kopie van elders (Downloads, 'n chat, 'n ander sessie) sonder om eers te diff teen `HEAD` nie.
 3. Klein commits, met Afrikaanse boodskappe.
-4. Toets voor elke push: lig- en donkermodus, klant-skerm, Geld-oortjie, en 'n PDF-staat in Afrikaans en Engels.
+4. Toets voor elke push: lig- en donkermodus, klant-skerm, Geld-oortjie, 'n PDF-staat in Afrikaans en Engels, en of die app aflyn laai. Toets oor `http://` (nie `file://` nie), anders werk die service worker nie.
 
 ## Data (moet nie breek nie)
 - Alles is in `localStorage`, key `crisna_kombuis_v1`, op haar foon. **Moet nooit die key verander nie.**
-- Nuwe velde gaan by via `migreer()`. Onbekende velde op `S` moet behoue bly.
+- Nuwe velde gaan by via `migreer()` in `app.js`. Onbekende velde op `S` moet behoue bly.
 - Rugsteun en herstel is JSON (Instellings).
 
-## Struktuur (binne `index.html`)
-- Eerste `<script>`: jsPDF 2.5.1 (UMD, inline). Moenie dit aanraak nie.
-- Tweede `<script>`: die app.
-  - `LOGO`, `logoSvg`, `ikoonSvg`, `pdfLogo`, `pdfIkoon`, `pdfPad`: die logo as vektorpaaie.
-  - Skerms: `skermHuis`, `skermKlant`, `skermGeld`, `skermInstellings`. Uitleg gebeur met `teken()`, events met `bindAksies()` en `bindGeld()`.
-  - State: `maakPdf` (PDF) en `staatHtml` (voorskou). Engelse state kom van `TAAL.en` en `naamEn`.
+## Struktuur (`app.js`)
+- `LOGO`, `logoSvg`, `ikoonSvg`, `pdfLogo`, `pdfIkoon`, `pdfPad`: die logo as vektorpaaie.
+- Skerms: `skermHuis`, `skermKlant`, `skermGeld`, `skermInstellings`. Uitleg gebeur met `teken()`, events met `bindAksies()` en `bindGeld()`.
+- State: `maakPdf` (PDF) en `staatHtml` (voorskou). Engelse state kom van `TAAL.en` en `naamEn`.
+- Geld: `geldData(maand)`, `S.uitgawes`, `S.inkomste` (kontantverkope), `S.kategoriee`.
 
 ## Merk / logo
 - Woordmerk: "Crisna" in Fraunces 800 (donkerbruin), met "se Kombuis" in Fraunces italic 400 (roes) regs daaronder.
-- Ikoon: 'n vet "C" met 'n houtlepel, room op 'n roes sirkel. Die tuisskerm-ikoon is 'n 180×180 PNG (data-URI in `<head>`).
-- Die logo is as vektorpaaie in `LOGO` ingebou, so geen font-lêers is nodig nie. Om dit te verander, moet die paaie opnuut uit Fraunces gegenereer word.
+- Ikoon: 'n vet "C" met 'n houtlepel, room op 'n roes sirkel. Dit is `ikone/apple-touch-icon.png` (180×180).
+- Die logo is as vektorpaaie in `LOGO` ingebou, so geen font-lêers is nodig nie.
 - Die logo wys net as die besigheidsnaam presies `Crisna se Kombuis` is (`isStdNaam`). Anders wys dit teks.
 - Engelse state gebruik die ikoon plus "Crisna's Hot Kitchen".
 - Ontwerp-canvas: https://claude.ai/artifact/E37paAYvF92rspKkdMajZr
 
-## Kleure (CSS tokens)
+## Kleure (CSS tokens in `style.css`)
 | Token | Lig | Donker | Gebruik |
 |---|---|---|---|
 | `--merk` | `#8E3B24` | `#E09A7C` | primêre knoppies, opsomming, skakels |
