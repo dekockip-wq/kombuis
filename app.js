@@ -202,7 +202,7 @@ function skermHuis(){
     + '<div class="afdeling"><span class="eyebrow">Klante</span>'
     + '<button class="skakel" data-nuweklant>Nuwe klant</button></div>'
     + '<div class="kaarte">'+kaarte+'</div>'
-    + '<p class="voetnota">Alles word op hierdie foon gestoor.<br>Maak gereeld &rsquo;n rugsteun by Instellings.</p>'
+    + '<p class="voetnota" id="stoor-nota">' + ((window.wolk && wolk.voetnota()) || 'Alles word op hierdie foon gestoor.<br>Maak gereeld &rsquo;n rugsteun by Instellings.') + '</p>'
     + '<div class="balk"><div class="binne">'
     + '<button class="knop" data-statealmal>Maak state vir almal</button>'
     + '</div></div>';

@@ -5,7 +5,7 @@
    Die kodes staan NOOIT in die repo nie. Hulle word een keer in Instellings geplak.
    Laai hierdie lêer NA app.js. */
 (function () {
-  var WOLK_URL = 'https://kombuis-api.zimmerman-payroll.workers.dev';
+  var WOLK_URL = 'https://kombuis-api.farmsentinel.online';
   var WSLEUTEL = 'crisna_kombuis_wolk'; // aparte key; raak nooit crisna_kombuis_v1 nie
   var WAG = 3000;                        // ms na die laaste stoor() voor ons stuur
 
@@ -85,8 +85,17 @@
     if (W.vuil) return 'Wag vir internet om die jongste veranderinge in die wolk te stoor. Laas gestoor: ' + tydTeks(W.laas) + '.';
     return 'Alles is in die wolk gestoor, ' + tydTeks(W.laas) + '.';
   }
+  // Onderaan die tuisskerm. Leeg = nie gekoppel nie; dan wys app.js sy eie teks.
+  function voetnota() {
+    if (!W.token) return '';
+    if (W.rol === 'lees') return 'Lees-alleen kopie van Crisna se data uit die wolk.';
+    if (W.fout === 'botsing' || W.fout === 'kode') return 'Die wolk-rugsteun het aandag nodig.<br>Kyk in Instellings.';
+    if (W.fout) return 'Alles is op hierdie foon gestoor.<br>Dit gaan wolk toe sodra daar weer verbinding is.';
+    return 'Alles word op hierdie foon en in die wolk gestoor.';
+  }
   function verfris() {
     var st = document.getElementById('wolk-status'); if (st) st.textContent = statusTeks();
+    var vn = document.getElementById('stoor-nota'); if (vn && voetnota()) vn.innerHTML = voetnota();
     var el = document.getElementById('wolk-strook');
     if (W.rol !== 'lees') { if (el) el.remove(); document.body.classList.remove('wolk-lees'); return; }
     if (!el) { el = document.createElement('div'); el.id = 'wolk-strook'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
@@ -182,7 +191,7 @@
     + 'body.wolk-lees .terug{margin-top:calc(36px + env(safe-area-inset-top))}';
   document.head.appendChild(styl);
 
-  window.wolk = { gestoor: gestoor, afdeling: afdeling };
+  window.wolk = { gestoor: gestoor, afdeling: afdeling, voetnota: voetnota };
 
   verfris();
   if (W.rol === 'skryf') { if (W.fout === 'botsing') toon('Die wolk-rugsteun het aandag nodig. Kyk in Instellings.'); else stuur(); }
