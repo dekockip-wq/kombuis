@@ -95,7 +95,7 @@ function laai(){
   try{var r=localStorage.getItem(SLEUTEL); if(r){S=JSON.parse(r); migreer(); return;}}catch(e){}
   S=saadjie(); migreer(); stoor();
 }
-function stoor(){ try{localStorage.setItem(SLEUTEL,JSON.stringify(S));}catch(e){} }
+function stoor(){ try{localStorage.setItem(SLEUTEL,JSON.stringify(S));}catch(e){} if(window.wolk) wolk.gestoor(); }
 function kiekie(){ return JSON.stringify(S); }
 function herstelKiekie(k){ S=JSON.parse(k); migreer(); stoor(); teken(); }
 
@@ -283,6 +283,7 @@ function skermInstellings(){
     + '<p class="hint">Stoor &rsquo;n kopie van al jou data. As jy ooit &rsquo;n nuwe foon kry, plak die kopie hier terug.</p>'
     + '<div class="knoppe"><button class="knop sag" data-rugsteun>Rugsteun stoor</button>'
     + '<button class="knop sag" data-herstel>Herstel</button></div>'
+    + (window.wolk ? wolk.afdeling() : '')
     + '<div class="afdeling"><span class="eyebrow">Gevaarsone</span></div>'
     + '<button class="knop gevaar" data-wisalles>Vee alle data uit</button>'
     + '<p class="voetnota">Wenk: tik die deel-knoppie onder in Safari en kies<br>&ldquo;Voeg by tuisskerm&rdquo; om dit soos &rsquo;n app oop te maak.</p>';

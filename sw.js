@@ -2,8 +2,8 @@
    Doel: die app laai ook sonder internet.
    Strategie: netwerk eerste (sodat opdaterings dadelik deurkom), met die kas as rugsteun.
    Verhoog VERSIE by elke deploy — dan word die ou kas opgeruim. */
-var VERSIE = 'kombuis-2026-09-27a';
-var SKIL = ['./', 'index.html', 'style.css', 'app.js', 'lib/jspdf.umd.min.js',
+var VERSIE = 'kombuis-2026-09-27b';
+var SKIL = ['./', 'index.html', 'style.css', 'app.js', 'wolk.js', 'lib/jspdf.umd.min.js',
             'manifest.webmanifest', 'ikone/apple-touch-icon.png', 'ikone/icon.png'];
 
 self.addEventListener('install', function (e) {
