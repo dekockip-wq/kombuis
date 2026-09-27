@@ -13,6 +13,12 @@
   function leesW() { try { return JSON.parse(localStorage.getItem(WSLEUTEL)) || {}; } catch (e) { return {}; } }
   function skryfW() { try { localStorage.setItem(WSLEUTEL, JSON.stringify(W)); } catch (e) {} }
   function stoorPlaaslik() { try { localStorage.setItem(SLEUTEL, JSON.stringify(S)); } catch (e) {} }
+  // Nuwe foon: die data is nog presies die saadjie (net die ewekansige id's verskil).
+  function ongebruik() {
+    function sonderId(o) { return JSON.stringify(o, function (k, v) { return k === 'id' ? undefined : v; }); }
+    var eie = S; S = saadjie(); migreer(); var saad = sonderId(S); S = eie;
+    return sonderId(S) === saad;
+  }
 
   function roep(metode, liggaam, token) {
     return fetch(WOLK_URL + '/data', {
@@ -138,6 +144,7 @@
         }
         if (!j.data) { W.vuil = 1; skryfW(); bladToe(); stuur(); teken(); toon('Gekoppel. Jou data word nou in die wolk gestoor.'); return; }
         if (JSON.stringify(j.data) === kiekie()) { skryfW(); bladToe(); teken(); toon('Gekoppel'); return; }
+        if (ongebruik()) { S = j.data; migreer(); stoorPlaaslik(); skryfW(); bladToe(); teken(); toon('Gekoppel. Jou data is uit die wolk afgehaal.'); return; }
         W.fout = 'botsing'; W.wolkWeergawe = j.weergawe; W.weergawe = null; skryfW();
         bladToe(); teken(); toon('Die wolk het reeds data. Kies watter een moet bly.');
       }, function () { knop.disabled = false; knop.textContent = 'Koppel'; toon('Geen internet nie. Probeer weer.'); });
