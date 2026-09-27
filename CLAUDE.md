@@ -8,6 +8,7 @@
 | `index.html` | net die raamwerk: head, ikone, 3 `div`s, script-tags | selde |
 | `style.css` | alle CSS (tokens bo-aan) | ja |
 | `app.js` | die hele app | ja — hier gebeur die werk |
+| `wolk.js` | wolk-rugsteun (laai ná `app.js`) | ja |
 | `lib/jspdf.umd.min.js` | jsPDF 2.5.1 (MIT), vir PDF-state | **nooit** |
 | `sw.js` | service worker: app werk sonder internet | net `VERSIE` |
 | `manifest.webmanifest`, `ikone/` | tuisskerm-ikoon en naam | selde |
@@ -15,10 +16,11 @@
 Daar is geen build step en geen framework nie.
 
 ## Deploy
-- Repo `dekockip-wq/kombuis`, branch **`gh-pages`**. `git push` beteken dit is live op https://dekockip-wq.github.io/kombuis/.
+- Repo `dekockip-wq/kombuis`, branch **`gh-pages`**. `git push` beteken dit is live op https://crisna.farmsentinel.online/ (sedert 27 Sep 2026; die ou github.io-adres stuur daarheen aan).
+- `CNAME` bly in die repo. Sonder dit verloor die site sy domein.
 - **By elke deploy:**
   1. Verhoog `VERSIE` in `sw.js`.
-  2. Verhoog die `?v=` agter `style.css` en `app.js` in `index.html`.
+  2. Verhoog die `?v=` agter `style.css`, `app.js` en `wolk.js` in `index.html`.
 
   Anders hou haar foon die ou weergawe.
 - Die service worker gebruik "netwerk eerste". Met internet kry sy altyd die nuutste weergawe, en sonder internet die laaste kopie wat gekas is.
@@ -34,6 +36,7 @@ Daar is geen build step en geen framework nie.
 - Alles is in `localStorage`, key `crisna_kombuis_v1`, op haar foon. **Moet nooit die key verander nie.**
 - Nuwe velde gaan by via `migreer()` in `app.js`. Onbekende velde op `S` moet behoue bly.
 - Rugsteun en herstel is JSON (Instellings).
+- Wolk: `wolk.js` stuur die hele `S` na https://kombuis-api.farmsentinel.online (Cloudflare Worker + D1, eie repo `~/Claude/kombuis-api/`). Die kode sit in key `crisna_kombuis_wolk`, nooit in die repo nie. localStorage bly die hoofkopie. Uurlikse kopieë vir 90 dae in D1-tabel `kopie`.
 
 ## Struktuur (`app.js`)
 - `LOGO`, `logoSvg`, `ikoonSvg`, `pdfLogo`, `pdfIkoon`, `pdfPad`: die logo as vektorpaaie.
