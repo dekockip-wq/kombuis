@@ -92,7 +92,9 @@ function saadjie(){
   };
 }
 function laai(){
-  try{var r=localStorage.getItem(SLEUTEL); if(r){S=JSON.parse(r); migreer(); return;}}catch(e){}
+  var r=null;
+  try{r=localStorage.getItem(SLEUTEL); if(r){S=JSON.parse(r); migreer(); return;}}
+  catch(e){ try{ if(r) localStorage.setItem(SLEUTEL+'_stukkend',r); }catch(e2){} }
   S=saadjie(); migreer(); stoor();
 }
 function stoor(){ try{localStorage.setItem(SLEUTEL,JSON.stringify(S));}catch(e){} if(window.wolk) wolk.gestoor(); }
@@ -564,7 +566,9 @@ function veldDatum(idn,lab,waarde){
   return '<div class="veld"><label for="'+idn+'">'+lab+'</label>'
     + '<input id="'+idn+'" type="date" value="'+h(waarde)+'"></div>';
 }
-function getal(idn){var v=parseFloat(String(($('#'+idn)||{}).value||'').replace(/[^0-9.\-]/g,''));
+function getal(idn){var t=String(($('#'+idn)||{}).value||'');
+  t=t.indexOf('.')<0 ? t.replace(/,/g,'.') : t.replace(/,/g,''); // "12,50" is 12.50
+  var v=parseFloat(t.replace(/[^0-9.\-]/g,''));
   return isFinite(v)?v:0;}
 
 function bladAnder(k){
@@ -700,11 +704,11 @@ function bindAksies(){
     var rg=app.querySelector('[data-rugsteun]'); if(rg) rg.onclick=doenRugsteun;
     var hs=app.querySelector('[data-herstel]'); if(hs) hs.onclick=bladHerstel;
     var wa=app.querySelector('[data-wisalles]'); if(wa) wa.onclick=function(){
-      bladBevestig('Vee alle data uit?','Elke klant, inskrywing en item word uitgevee en die app begin skoon. Maak eers &rsquo;n rugsteun.',
+      bladBevestig('Vee alle data uit?','Elke klant, inskrywing, uitgawe en kontantverkoop word uitgevee. Jou items en besigheid-besonderhede bly. Maak eers &rsquo;n rugsteun.',
         'Ja, vee uit', function(){
           var voor=kiekie();
-          S={v:1,besigheid:S.besigheid,items:S.items,klante:[]};
-          stoor(); gaan('huis'); toon('Alles uitgevee', voor);
+          S={v:1,besigheid:S.besigheid,items:S.items,klante:[],kategoriee:S.kategoriee};
+          migreer(); stoor(); gaan('huis'); toon('Alles uitgevee', voor);
         });
     };
   }
@@ -735,6 +739,7 @@ $('#blad').addEventListener('click', function(ev){
       bladToe(); stoor(); teken(); toon('Verwyder', voor); return;
     }
     var e=kk.inskrywings.filter(function(x){return x.id===eid;})[0];
+    if(!getal('w-bedrag')){toon('Vul ’n bedrag in');return;}
     e.beskr=$('#w-beskr').value.trim()||e.beskr; e.bedrag=getal('w-bedrag'); e.datum=$('#w-datum').value||e.datum;
     bladToe(); stoor(); teken(); toon('Gestoor', voor); return;
   }
@@ -1011,3 +1016,4 @@ function bladInkomste(e){
 
 /* ============ begin ============ */
 laai(); teken();
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); // vra iOS om nie die data uit te vee nie

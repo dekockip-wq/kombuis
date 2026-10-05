@@ -20,6 +20,9 @@
     return sonderId(S) === saad;
   }
 
+  // Kort vingerafdruk van die data, om te sien of die wolk ons laaste stuur al het.
+  function vinger(t) { var x = 5381; for (var i = 0; i < t.length; i++) x = (x * 33 + t.charCodeAt(i)) | 0; return t.length + ':' + x; }
+
   function roep(metode, liggaam, token) {
     return fetch(WOLK_URL + '/data', {
       method: metode, cache: 'no-store',
@@ -41,14 +44,24 @@
     if (!W.token || W.rol !== 'skryf' || !W.vuil || W.fout === 'botsing') return;
     if (besig) { weer = true; return; }
     besig = true;
-    var n = W.vuil;
+    var n = W.vuil, ou = W.gestuur;
+    W.gestuur = vinger(kiekie()); skryfW();
     roep('PUT', { data: S, basis: W.weergawe == null ? null : W.weergawe }).then(function (j) {
       if (j._s === 200) { W.weergawe = j.weergawe; W.laas = Date.now(); W.fout = null; if (W.vuil === n) W.vuil = 0; }
-      else if (j._s === 409) { W.fout = 'botsing'; W.wolkWeergawe = j.weergawe; }
+      else if (j._s === 409) return botsing(j.weergawe, ou);
       else if (j._s === 401) W.fout = 'kode';
       else W.fout = 'bediener';
     }, function () { W.fout = 'aflyn'; })
     .then(function () { skryfW(); besig = false; verfris(); if (weer) { weer = false; stuur(); } });
+  }
+  // 'n 409 kan vals wees: die wolk het ons vorige stuur gestoor, maar die antwoord het verlore geraak
+  // (bv. iOS het die app toegemaak). As die wolk presies ons vorige of huidige data het, gaan net voort.
+  function botsing(wolkWeergawe, ou) {
+    return roep('GET').then(function (j) {
+      var wolk = j._s === 200 && j.data ? vinger(JSON.stringify(j.data)) : null;
+      if (wolk && (wolk === ou || wolk === vinger(kiekie()))) { W.weergawe = j.weergawe; weer = true; return; }
+      W.fout = 'botsing'; W.wolkWeergawe = wolkWeergawe;
+    }, function () { W.fout = 'aflyn'; });
   }
 
   /* ---------- lees: haal van die wolk af ---------- */
@@ -194,6 +207,9 @@
   window.wolk = { gestoor: gestoor, afdeling: afdeling, voetnota: voetnota };
 
   verfris();
-  if (W.rol === 'skryf') { if (W.fout === 'botsing') toon('Die wolk-rugsteun het aandag nodig. Kyk in Instellings.'); else stuur(); }
+  // Die foon het sy data verloor (net die saadjie is oor), maar is nog aan die wolk gekoppel:
+  // haal die wolk s'n af in plaas daarvan om die saadjie daarheen te stuur.
+  if (W.rol === 'skryf' && W.weergawe != null && W.fout !== 'botsing' && ongebruik()) haalEnVervang('Jou data is uit die wolk teruggehaal');
+  else if (W.rol === 'skryf') { if (W.fout === 'botsing') toon('Die wolk-rugsteun het aandag nodig. Kyk in Instellings.'); else stuur(); }
   if (W.rol === 'lees') haal(true);
 })();
