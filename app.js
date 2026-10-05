@@ -723,12 +723,12 @@ $('#blad').addEventListener('click', function(ev){
   if(a('data-ander-stoor')){
     var k=klantVan(a('data-ander-stoor'));
     var b=$('#a-beskr').value.trim()||'Item', bed=getal('a-bedrag'), dat=$('#a-datum').value||vandagISO();
-    if(!bed){toon('Vul &rsquo;n bedrag in');return;}
+    if(!bed){toon('Vul ’n bedrag in');return;}
     bladToe(); voegBy(k,b,bed,dat); return;
   }
   if(a('data-bet-stoor')){
     var k2=klantVan(a('data-bet-stoor')), bed2=getal('b-bedrag'), dat2=$('#b-datum').value||vandagISO();
-    if(!bed2){toon('Vul &rsquo;n bedrag in');return;}
+    if(!bed2){toon('Vul ’n bedrag in');return;}
     bladToe(); voegBy(k2,'Betaling',bed2,dat2,'betaling'); return;
   }
   if(a('data-ins-stoor')||a('data-ins-weg')){
@@ -744,14 +744,14 @@ $('#blad').addEventListener('click', function(ev){
     bladToe(); stoor(); teken(); toon('Gestoor', voor); return;
   }
   if(el.hasAttribute('data-klant-stoor')){
-    var naam=$('#n-naam').value.trim(); if(!naam){toon('Vul &rsquo;n naam in');return;}
+    var naam=$('#n-naam').value.trim(); if(!naam){toon('Vul ’n naam in');return;}
     var voor2=kiekie();
     var nuut={id:id(),naam:naam,open:getal('n-open'),inskrywings:[],laasteStaat:null};
     S.klante.push(nuut); stoor(); bladToe(); gaan('klant',nuut.id); toon(naam+' bygevoeg', voor2); return;
   }
   if(a('data-item-stoor')!==null && el.hasAttribute('data-item-stoor')){
     var itid=a('data-item-stoor'), nm=$('#it-naam').value.trim(), pr=getal('it-prys');
-    if(!nm){toon('Vul &rsquo;n naam in');return;}
+    if(!nm){toon('Vul ’n naam in');return;}
     var voor3=kiekie();
     if(itid){ var it=S.items.filter(function(x){return x.id===itid;})[0]; it.naam=nm; it.prys=pr; }
     else S.items.push({id:id(),naam:nm,prys:pr});
@@ -800,7 +800,7 @@ $('#blad').addEventListener('click', function(ev){
       var nuwe=JSON.parse(teks);
       if(!nuwe || !nuwe.klante) throw 0;
       var voor7=kiekie(); S=nuwe; migreer(); stoor(); bladToe(); gaan('huis'); toon('Data herstel', voor7);
-    }catch(err){ toon('Die teks lyk nie soos &rsquo;n rugsteun nie'); }
+    }catch(err){ toon('Die teks lyk nie soos ’n rugsteun nie'); }
     return;
   }
 });
