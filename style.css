@@ -141,6 +141,7 @@ input,select{font:inherit;color:var(--ink)}
 .blad h3{font-size:21px;margin-bottom:14px}
 .greep{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 14px}
 .veld{margin-bottom:13px}
+.veld-twee{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .veld label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px}
 .veld input,.veld select,.veld textarea{width:100%;min-height:48px;padding:11px 13px;
   background:var(--ground);border:1.5px solid var(--line);border-radius:11px;font-size:16px;

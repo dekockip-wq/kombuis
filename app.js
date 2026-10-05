@@ -574,10 +574,17 @@ function getal(idn){var t=String(($('#'+idn)||{}).value||'');
 function bladAnder(k){
   bladOop('<h3>Ander item</h3>'
     + '<div class="veld"><label for="a-beskr">Wat is dit?</label><input id="a-beskr" value="" placeholder="bv. Koeksisters"></div>'
-    + veldGetal('a-bedrag','Bedrag','')
+    + '<div class="veld-twee">'
+    +   '<div class="veld"><label for="a-aantal">Hoeveel</label><input id="a-aantal" type="text" inputmode="numeric" value="1"></div>'
+    +   veldGetal('a-prys','Prys elk',k.anderPrys||'')
+    + '</div>'
+    + veldGetal('a-bedrag','Bedrag (totaal)',k.anderPrys||'')
     + veldDatum('a-datum','Datum',vandagISO())
     + '<div class="knoppe"><button class="knop sag" data-toe>Kanselleer</button>'
     + '<button class="knop" data-ander-stoor="'+k.id+'">Voeg by</button></div>');
+  // Hoeveel × prys elk vul die totaal in; sy kan die totaal steeds self verander.
+  var reken=function(){ var p=getal('a-prys'); if(p) $('#a-bedrag').value=String(Math.round(getal('a-aantal')*p*100)/100); };
+  $('#a-aantal').oninput=reken; $('#a-prys').oninput=reken;
   setTimeout(function(){var el=$('#a-beskr'); if(el) el.focus();},60);
 }
 function bladBetaling(k){
@@ -723,7 +730,10 @@ $('#blad').addEventListener('click', function(ev){
   if(a('data-ander-stoor')){
     var k=klantVan(a('data-ander-stoor'));
     var b=$('#a-beskr').value.trim()||'Item', bed=getal('a-bedrag'), dat=$('#a-datum').value||vandagISO();
+    var n=getal('a-aantal'), pe=getal('a-prys');
     if(!bed){toon('Vul ’n bedrag in');return;}
+    if(n>1 && !new RegExp('x\\s*'+n+'\\b','i').test(b)) b+=' x '+n;
+    if(pe) k.anderPrys=pe;
     bladToe(); voegBy(k,b,bed,dat); return;
   }
   if(a('data-bet-stoor')){
