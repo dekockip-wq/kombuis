@@ -120,9 +120,17 @@ function klantVan(kid){return S.klante.filter(function(k){return k.id===kid;})[0
 
 /* periode-staat: alles ná laasteStaat */
 function huidigeMaand(){ return vandagISO().slice(0,7); }
+/* standaard staat-maand: hierdie maand, of verlede maand as die klant nog niks hierdie maand het nie */
+function staatMaand(k){
+  var m=huidigeMaand();
+  if(k.inskrywings.some(function(e){ return e.datum.slice(0,7)===m; })) return m;
+  var j=+m.slice(0,4), n=+m.slice(5,7)-1;
+  if(n===0){ j--; n=12; }
+  return j+'-'+(n<10?'0':'')+n;
+}
 /* maand-staat: saldo aan die begin van die maand + alles in daardie maand */
 function staatData(k, maand){
-  maand = maand || huidigeMaand();
+  maand = maand || staatMaand(k);
   var voor=k.open||0, rye=[];
   gesorteer(k).forEach(function(e){
     var m=e.datum.slice(0,7);
@@ -136,7 +144,7 @@ function staatData(k, maand){
 function maandNaam(m){ return MAANDVOL[+m.slice(5,7)-1]+' '+m.slice(0,4); }
 /* alle maande waarvoor daar iets is, plus die huidige, nuutste eerste */
 function maandeVan(k){
-  var st={}; st[huidigeMaand()]=1;
+  var st={}; st[huidigeMaand()]=1; st[staatMaand(k)]=1;
   k.inskrywings.forEach(function(e){ st[e.datum.slice(0,7)]=1; });
   return Object.keys(st).sort().reverse();
 }
@@ -451,7 +459,7 @@ function maakPdf(k, maand){
   return doc;
 }
 function pdfNaam(k, maand){
-  maand=maand||huidigeMaand();
+  maand=maand||staatMaand(k);
   var d=vandagISO().split('-'), tl=taalVan(k);
   var mn=(tl==='en'?MONTHS_EN:MAANDVOL)[+maand.slice(5,7)-1], dm=(tl==='en'?MON_EN:MAANDE)[+d[1]-1];
   return T(k).leer+'_'+k.naam.replace(/[^A-Za-z0-9]/g,'')+'_'+mn+maand.slice(0,4)+'_'+d[2]+dm+'.pdf';
@@ -522,7 +530,7 @@ function staatHtml(k, maand){
 }
 
 function bladStaat(k, maand){
-  maand = maand || huidigeMaand();
+  maand = maand || staatMaand(k);
   var opsies=maandeVan(k).map(function(m){
     return '<option value="'+m+'"'+(m===maand?' selected':'')+'>'+h(maandNaam(m))+'</option>';
   }).join('');
@@ -773,7 +781,7 @@ $('#blad').addEventListener('click', function(ev){
     stoor(); bladToe(); teken(); toon('Item verwyder', voor4); return;
   }
   if(a('data-stoorpdf')){
-    var kp=klantVan(a('data-stoorpdf')), mp=a('data-maand')||huidigeMaand();
+    var kp=klantVan(a('data-stoorpdf')), mp=a('data-maand')||staatMaand(kp);
     el.disabled=true; el.textContent='Besig…';
     stuurStaat(kp, mp).then(function(r){
       el.disabled=false; el.textContent='Stuur staat';
